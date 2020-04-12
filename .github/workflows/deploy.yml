@@ -19,3 +19,19 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: tifmoe/go-fishbowl
           tags: latest
+
+      - name: Deploy Docker Image to Digital Ocean Droplet
+        uses: appleboy/ssh-action@master
+        env:
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          envs: DOCKER_USERNAME, DOCKER_PASSWORD
+          script: |
+            docker stop $(docker ps -a -q)
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            docker run -d -p 80:8080 tifmoe/go-fishbowl:latest

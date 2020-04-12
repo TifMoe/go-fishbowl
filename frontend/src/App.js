@@ -9,7 +9,7 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Deploy React + Go to Heroku using Docker
+          Deploy React + Go to Digital Ocean using Docker
         </p>
         <PingComponent />
       </header>
