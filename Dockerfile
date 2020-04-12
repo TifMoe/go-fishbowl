@@ -23,7 +23,3 @@ RUN chmod +x ./main
 
 EXPOSE 8080
 CMD ["./main"]
-
-# RUN chmod +x ./bin/go-fishbowl
-
-# CMD ["./bin/go-fishbowl"]
