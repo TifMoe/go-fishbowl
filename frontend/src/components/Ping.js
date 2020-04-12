@@ -5,7 +5,7 @@ class PingComponent extends Component {
     constructor() {
         super();
         this.state = {
-            pong: 'pending'
+            msg: 'waiting'
         }
     }
 
@@ -13,7 +13,7 @@ class PingComponent extends Component {
         axios.get('api/ping')
             .then((response) => {
                 this.setState(() => {
-                    return { pong: response.data.message }
+                    return { msg: response.data.message }
                 })
             })
             .catch(function (error) {
@@ -23,7 +23,12 @@ class PingComponent extends Component {
     }
 
     render() {
-        return <h1>Ping {this.state.pong}</h1>;
+        return (
+        <div>
+            <h3>Testing the go server... </h3>
+            <h1>" {this.state.msg} "</h1>
+        </div>
+        );
     }
 }
 
