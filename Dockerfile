@@ -1,40 +1,29 @@
-# Build Stage
-FROM latest:1.13 AS build-stage
+# Server Build Stage
+FROM golang:latest AS builder
 
-LABEL app="build-go-fishbowl"
-LABEL REPO="https://github.com/tifmoe/go-fishbowl"
+# Copy app into docker container
+COPY . /app
+WORKDIR /app/cmd/go-fishbowl
+RUN go mod download
 
-ENV PROJPATH=/go/src/github.com/tifmoe/go-fishbowl
+# Build server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w" -a -o /main .
 
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+# Frontend Build Stage
+FROM node:alpine AS node_builder
+COPY --from=builder /app/frontend ./
+RUN npm install
+RUN npm run build
 
-ADD . /go/src/github.com/tifmoe/go-fishbowl
-WORKDIR /go/src/github.com/tifmoe/go-fishbowl
+# Final Build, what is actually deployed
+FROM alpine:latest
+COPY --from=builder /main ./
+COPY --from=node_builder /build ./web
+RUN chmod +x ./main
 
-RUN make build-alpine
+EXPOSE 8080
+CMD ["./main"]
 
-# Final Stage
-FROM golang
+# RUN chmod +x ./bin/go-fishbowl
 
-ARG GIT_COMMIT
-ARG VERSION
-LABEL REPO="https://github.com/tifmoe/go-fishbowl"
-LABEL GIT_COMMIT=$GIT_COMMIT
-LABEL VERSION=$VERSION
-
-# Because of https://github.com/docker/docker/issues/14914
-ENV PATH=$PATH:/opt/go-fishbowl/bin
-
-WORKDIR /opt/go-fishbowl/bin
-
-COPY --from=build-stage /go/src/github.com/tifmoe/go-fishbowl/bin/go-fishbowl /opt/go-fishbowl/bin/
-RUN chmod +x /opt/go-fishbowl/bin/go-fishbowl
-
-# Create appuser
-RUN adduser -D -g '' go-fishbowl
-USER go-fishbowl
-
-ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-
-CMD ["/opt/go-fishbowl/bin/go-fishbowl"]
+# CMD ["./bin/go-fishbowl"]

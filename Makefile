@@ -24,18 +24,17 @@ help:
 	@echo '    make clean           Clean the directory tree.'
 	@echo
 
+dev:
+	docker-compose up --build
+
 build:
 	@echo "building ${BIN_NAME} ${VERSION}"
 	@echo "GOPATH=${GOPATH}"
-	go build -ldflags "-X github.com/tifmoe/go-fishbowl/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/tifmoe/go-fishbowl/version.BuildDate=${BUILD_DATE}" -o bin/${BIN_NAME}
+	go build ./cmd/go-fishbowl -o ./bin/go-fishbowl
 
 get-deps:
 	dep ensure
 
-build-alpine:
-	@echo "building ${BIN_NAME} ${VERSION}"
-	@echo "GOPATH=${GOPATH}"
-	go build -ldflags '-w -linkmode external -extldflags "-static" -X github.com/tifmoe/go-fishbowl/version.GitCommit=${GIT_COMMIT}${GIT_DIRTY} -X github.com/tifmoe/go-fishbowl/version.BuildDate=${BUILD_DATE}' -o bin/${BIN_NAME}
 
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
