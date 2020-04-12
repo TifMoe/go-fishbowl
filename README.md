@@ -19,10 +19,13 @@ Starting the go server:
 ```console
 $ go run cmd/go-fishbowl/main.go
 ```
+You can hit the api with a curl like `curl localhost:8080/api/ping`
+
 And in another terminal starting the frontend:
 ```console
 $ cd frontend/ && npm start
 ```
+You can view the frontend by navigating to http://localhost:3000
 
 To deploy the web app locally should be as simple as:
 ```console
