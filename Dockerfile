@@ -1,12 +1,8 @@
 # Server Build Stage
 FROM golang:latest AS builder
-
-# Copy app into docker container
 COPY . /app
 WORKDIR /app/cmd/go-fishbowl
 RUN go mod download
-
-# Build server
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w" -a -o /main .
 
 # Frontend Build Stage
@@ -15,7 +11,7 @@ COPY --from=builder /app/frontend ./
 RUN npm install
 RUN npm run build
 
-# Final Build, what is actually deployed
+# Final Build, this is what is actually deployed
 FROM alpine:latest
 COPY --from=builder /main ./
 COPY --from=node_builder /build ./web

@@ -24,7 +24,7 @@ help:
 	@echo '    make clean           Clean the directory tree.'
 	@echo
 
-dev:
+local:
 	docker-compose up --build
 
 build:
@@ -34,7 +34,6 @@ build:
 
 get-deps:
 	dep ensure
-
 
 package:
 	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
