@@ -1,19 +1,20 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+
 import './App.css';
-import Picker from './components/NamePicker';
+import HomePage from './pages/Home';
+import GamePage from './pages/Game';
 
 function App() {
   return (
+    <BrowserRouter>
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          <b>Coming soon:</b> A React + Go web app deployed to Digital Ocean using Docker
-        </p>
-        <Picker />
-      </header>
+        <Switch>
+         <Route path="/" component={HomePage} exact/>
+         <Route path="/game/:gameId" component={GamePage}/>
+       </Switch>
     </div>
+  </BrowserRouter>
   );
 }
 

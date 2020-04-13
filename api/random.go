@@ -33,7 +33,8 @@ func randPicker(words []string) string {
 }
 
 func readWords() (words *WordChoices, err error) {
-	// read file
+	// TODO store words in noSQL db when we create it
+	// read file from assets for now
 	absPath, _ := filepath.Abs("./assets/randwords.json")  // path from the working directory
 	data, err := ioutil.ReadFile(absPath)
 	if err != nil {
