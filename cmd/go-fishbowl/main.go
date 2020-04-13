@@ -1,21 +1,18 @@
 package main
 
 import (
-	"github.com/gin-gonic/contrib/static"
-	"github.com/gin-gonic/gin"
+    "net/http"
+
+	"github.com/tifmoe/go-fishbowl/api"
 )
 
 func main() {
 
-	r := gin.Default()
-	r.Use(static.Serve("/", static.LocalFile("./web", true)))
+	port := api.GetEnv("PORT", "8080")
 
-	api := r.Group("/api")
-	api.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "I'm aaaaaalive!!",
-		})
-	})
-
-	r.Run()
+	http.Handle("/", http.FileServer(http.Dir("./web")))
+	http.HandleFunc("/api/ping", api.Ping)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
+		panic(err)
+	}
 }

@@ -25,8 +25,8 @@ class PingComponent extends Component {
     render() {
         return (
         <div>
-            <h3>Testing the go server... </h3>
-            <h1>" {this.state.msg} "</h1>
+            <h1>Testing the go server... </h1>
+            <h3>" {this.state.msg} "</h3>
         </div>
         );
     }
