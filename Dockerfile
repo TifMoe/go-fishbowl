@@ -15,6 +15,7 @@ RUN npm run build
 FROM alpine:latest
 COPY --from=builder /main ./
 COPY --from=node_builder /build ./web
+COPY ./assets ./assets
 RUN chmod +x ./main
 
 EXPOSE 8080
