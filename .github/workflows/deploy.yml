@@ -18,7 +18,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: tifmoe/go-fishbowl
-          tags: latest # I should figure out how to parameterize this or force build and push
+          tags: latest
 
       - name: Deploy Docker Image to Digital Ocean Droplet
         uses: appleboy/ssh-action@master
