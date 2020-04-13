@@ -2,7 +2,6 @@
 
 BIN_NAME=go-fishbowl
 
-VERSION := $(shell grep "const Version " version/version.go | sed -E 's/.*"(.+)"$$/\1/')
 GIT_COMMIT=$(shell git rev-parse HEAD)
 GIT_DIRTY=$(shell test -n "`git status --porcelain`" && echo "+CHANGES" || true)
 BUILD_DATE=$(shell date '+%Y-%m-%d-%H:%M:%S')
@@ -18,7 +17,7 @@ help:
 	@echo '    make get-deps        runs dep ensure, mostly used for ci.'
 	@echo '    make build-alpine    Compile optimized for alpine linux.'
 	@echo '    make package         Build final docker image with just the go binary inside'
-	@echo '    make tag             Tag image created by package with latest, git commit and version'
+	@echo '    make tag             Tag image created by package with latest and git commit'
 	@echo '    make test            Run tests on a compiled project.'
 	@echo '    make push            Push tagged images to registry'
 	@echo '    make clean           Clean the directory tree.'
@@ -28,7 +27,7 @@ local:
 	docker-compose up --build
 
 build:
-	@echo "building ${BIN_NAME} ${VERSION}"
+	@echo "building ${BIN_NAME}"
 	@echo "GOPATH=${GOPATH}"
 	go build ./cmd/go-fishbowl -o ./bin/go-fishbowl
 
@@ -36,19 +35,17 @@ get-deps:
 	dep ensure
 
 package:
-	@echo "building image ${BIN_NAME} ${VERSION} $(GIT_COMMIT)"
-	docker build --build-arg VERSION=${VERSION} --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
+	@echo "building image ${BIN_NAME} $(GIT_COMMIT)"
+	docker build --build-arg GIT_COMMIT=$(GIT_COMMIT) -t $(IMAGE_NAME):local .
 
 tag: 
-	@echo "Tagging: latest ${VERSION} $(GIT_COMMIT)"
+	@echo "Tagging: latest $(GIT_COMMIT)"
 	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):$(GIT_COMMIT)
-	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):${VERSION}
 	docker tag $(IMAGE_NAME):local $(IMAGE_NAME):latest
 
 push: tag
-	@echo "Pushing docker image to registry: latest ${VERSION} $(GIT_COMMIT)"
+	@echo "Pushing docker image to registry: latest $(GIT_COMMIT)"
 	docker push $(IMAGE_NAME):$(GIT_COMMIT)
-	docker push $(IMAGE_NAME):${VERSION}
 	docker push $(IMAGE_NAME):latest
 
 clean:

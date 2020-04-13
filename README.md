@@ -23,7 +23,7 @@ You can hit the api with a curl like `curl localhost:8080/api/ping`
 
 And in another terminal starting the frontend:
 ```console
-$ cd frontend/ && npm start
+$ cd ui/ && npm start
 ```
 You can view the frontend by navigating to http://localhost:3000
 
