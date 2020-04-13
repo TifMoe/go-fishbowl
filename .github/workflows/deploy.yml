@@ -33,5 +33,6 @@ jobs:
           envs: DOCKER_USERNAME, DOCKER_PASSWORD
           script: |
             docker stop $(docker ps -a -q)
-            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+            docker pull tifmoe/go-fishbowl:latest
             docker run -d -p 80:8080 tifmoe/go-fishbowl:latest
