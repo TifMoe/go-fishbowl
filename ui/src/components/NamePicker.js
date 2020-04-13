@@ -1,5 +1,9 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import { Link } from "react-router-dom";
 import axios from 'axios';
+
+import './NamePicker.css';
+
 class Picker extends Component {
 
     constructor() {
@@ -25,11 +29,12 @@ class Picker extends Component {
     render() {
         return (
         <div>
-            <h1>Testing the Go server: </h1>
-            <p>
-                Please give me a new random name when I refresh ... 
-            </p>
-            <h3>" {this.state.msg} "</h3>
+            <Link to={`/game/${this.state.msg}`} >
+                <button>
+                    Start a new game!
+                </button>
+            </Link>
+            <p> /{this.state.msg} </p>
         </div>
         );
     }
