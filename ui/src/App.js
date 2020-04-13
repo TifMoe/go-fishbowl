@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import PingComponent from './components/Ping';
+import Picker from './components/NamePicker';
 
 function App() {
   return (
@@ -11,7 +11,7 @@ function App() {
         <p>
           <b>Coming soon:</b> A React + Go web app deployed to Digital Ocean using Docker
         </p>
-        <PingComponent />
+        <Picker />
       </header>
     </div>
   );

@@ -11,7 +11,7 @@ func main() {
 	port := api.GetEnv("PORT", "8080")
 
 	http.Handle("/", http.FileServer(http.Dir("./web")))
-	http.HandleFunc("/api/ping", api.Ping)
+	http.HandleFunc("/v1/api/random/name", api.RandomWords)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		panic(err)
 	}

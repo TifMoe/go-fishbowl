@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios';
-class PingComponent extends Component {
+class Picker extends Component {
 
     constructor() {
         super();
@@ -10,7 +10,7 @@ class PingComponent extends Component {
     }
 
     componentWillMount() {
-        axios.get('api/ping')
+        axios.get('v1/api/random/name')
             .then((response) => {
                 this.setState(() => {
                     return { msg: response.data.message }
@@ -25,11 +25,14 @@ class PingComponent extends Component {
     render() {
         return (
         <div>
-            <h1>Testing the go server... </h1>
+            <h1>Testing the Go server: </h1>
+            <p>
+                Please give me a new random name when I refresh ... 
+            </p>
             <h3>" {this.state.msg} "</h3>
         </div>
         );
     }
 }
 
-export default PingComponent; 
+export default Picker; 
