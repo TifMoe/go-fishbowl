@@ -9,7 +9,7 @@ class Picker extends Component {
     constructor() {
         super();
         this.state = {
-            msg: 'waiting'
+            msg: 'pending'
         }
     }
 
