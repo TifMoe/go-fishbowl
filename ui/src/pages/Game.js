@@ -9,7 +9,7 @@ const GamePage = ({ match }) => {
         <header className="Game-header">
           <img src={fishbowl} className="Game-logo" alt="logo" />
           <h1>{gameId}</h1>
-          <h2>Sorry, Fishbowl still under development</h2>
+          <h2>Sorry, your Fishbowl is still under development</h2>
         </header>
     );
   }
