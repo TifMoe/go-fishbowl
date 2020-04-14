@@ -1,13 +1,15 @@
 import React from 'react';
-import '../App.css';
+import fishbowl from '../assets/Fishbowl4.svg';
+import './Game.css';
 
 const GamePage = ({ match }) => {
     const { params: { gameId } } = match;
 
     return (
-        <header className="App-header">
+        <header className="Game-header">
+          <img src={fishbowl} className="Game-logo" alt="logo" />
           <h1>{gameId}</h1>
-          <h2>Here's a new game for you! </h2>
+          <h2>Sorry, your Fishbowl is still under development</h2>
         </header>
     );
   }
