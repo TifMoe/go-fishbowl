@@ -24,7 +24,7 @@ help:
 	@echo
 
 local:
-	docker-compose up --build
+	docker-compose up --build --force-recreate
 
 build:
 	@echo "building ${BIN_NAME}"
