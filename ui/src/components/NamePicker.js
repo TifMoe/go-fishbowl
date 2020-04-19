@@ -14,7 +14,7 @@ class Picker extends Component {
     }
 
     componentWillMount() {
-        axios.get('v1/api/random/name')
+        axios.get('v1/api/game')
             .then((response) => {
                 this.setState(() => {
                     return { msg: response.data.message }
