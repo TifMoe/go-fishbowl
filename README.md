@@ -32,8 +32,10 @@ To deploy the web app locally should be as simple as:
 ```console
 $ make local
 ```
-Then navigate to http://localhost to check out a preview of the dockerized app as it will be deployed to production
+Then navigate to http://localhost:8080 to check out a preview of the dockerized app as it will be deployed to production
 
 ### Testing
-
-``make test``
+Run the backend unit tests with:
+```console
+$ make test
+```
