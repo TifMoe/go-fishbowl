@@ -14,16 +14,19 @@ class Picker extends Component {
     }
 
     componentWillMount() {
-        axios.get('v1/api/game')
-            .then((response) => {
-                this.setState(() => {
-                    return { msg: response.data.message }
-                })
+        axios({
+            method: 'post',
+            url: 'v1/api/game',
+            timeout: 4000,    // 4 seconds timeout
+          })
+        .then((response) => {
+            this.setState(() => {
+                return { msg: response.data.message }
             })
-            .catch(function (error) {
-                console.log(error);
-            });
-
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     render() {
