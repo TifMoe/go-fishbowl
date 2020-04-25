@@ -36,4 +36,4 @@ jobs:
             docker stop $(docker ps -a -q)
             echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
             docker pull tifmoe/go-fishbowl:latest
-            docker run -d -p 80:8080 tifmoe/go-fishbowl:latest
+            docker-compose -f deploy.yml up --force-recreate --build --abort-on-container-exit
