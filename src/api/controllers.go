@@ -8,87 +8,108 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/tifmoe/go-fishbowl/src/errors"
 	"github.com/tifmoe/go-fishbowl/src/service"
 )
 
 // NewGameController will instantiate a new game handler
-func NewGameController(svc *service.Service) *Controller {
-	return &Controller{
+func NewGameController(svc service.GameService) *controller {
+	return &controller{
 		Svc: svc,
 	}
 }
 
 // GameController is interface with methods to interact with redis db	
 type GameController interface {
-    NewGame(w http.ResponseWriter, r *http.Request)
-	SaveNewCard(w http.ResponseWriter, r *http.Request)
-	FetchCards(w http.ResponseWriter, r *http.Request)
+	NewGame(w http.ResponseWriter, r *http.Request)
+	GetGame(w http.ResponseWriter, r *http.Request)
+	NewCard(w http.ResponseWriter, r *http.Request)
 }
 
 // Controller holds services and validators for Game Handlers
-type Controller struct {
-	Svc *service.Service
+type controller struct {
+	Svc service.GameService
 }
 
 // NewGame is controller for generating new game namespace and instantiating in the database
-func (c *Controller) NewGame(w http.ResponseWriter, r *http.Request) {
+func (c *controller) NewGame(w http.ResponseWriter, r *http.Request) {
 
 	// Instantiate new game namespace
 	nameSpace, err := c.Svc.NewGame()
 	if err != nil {
 		log.Printf("error generating new namespace: %v", err)
-		// ToDo generate error response here
+
+		// Build and return error
+		res := buildResponse(Game{}, errors.ErrNewGame, nameSpace)
+		serveResponse(w, res)
 		return
 	}
 
-	res := &Response{
-		Message: nameSpace,
+	game := Game{
+		ID: nameSpace,
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	res := buildResponse(game, &errors.ErrorInternal{}, nameSpace)
+
+	// Return response
+	serveResponse(w, res)
 }
 
-// SaveNewCard is controller for saving a new card to the existing game
-func (c *Controller) SaveNewCard(w http.ResponseWriter, r *http.Request) {
-	// Fetch game ID from request path
+// NewCard is controller for saving a new card to the existing game
+func (c *controller) NewCard(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	gameID := params["gameID"]
 	card := service.CardInput{}
 
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&card)
-	if err != nil {
+	if err != nil || card.IsEmpty() {
 		log.Printf("error decoding values: %v", err)
-		return // TODO: Return 400
+		res := buildResponse(Game{}, errors.ErrInvalidInput, gameID)
+		serveResponse(w, res)
+		return
 	}
 
-	err = c.Svc.SaveNewCard(gameID, &card)
+	cardID, err := c.Svc.SaveCard(gameID, &card)
 	if err != nil {
 		log.Printf("error saving values: %v", err)
-		return // TODO: Return 500
+		// TODO discern validation and not-found errors
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
 	}
 
-	res := &Response{
-		Message: fmt.Sprintf("Successfully saved to %s", gameID),
+	game := Game{
+		ID: gameID,
+		Cards: []Card{
+			Card{
+				ID: cardID,
+				Value: card.Value,
+				Used: false,
+			},
+		},
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	msg := fmt.Sprintf("Successfully saved new card to %s", gameID)
+
+	res := buildResponse(game, &errors.ErrorInternal{}, msg)
+	res.Status = 201
+	serveResponse(w, res)
 }
 
-// FetchCards is controller for saving a new card to the existing game
-func (c *Controller) FetchCards(w http.ResponseWriter, r *http.Request) {
-	// Get game ID from request path
+// GetGame is controller for fetching a specific game
+func (c *controller) GetGame(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	gameID := params["gameID"]
 	
-	cards, err := c.Svc.FetchCards(gameID)
+	gameInternal, err := c.Svc.GetGame(gameID)
 	if err != nil {
 		log.Printf("error fetching cards: %v", err)
-		return // TODO Return 500
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
 	}
-	res := &Response{
-		Message: fmt.Sprintf("Game %s identified! Here are the cards: %v", gameID, cards),
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	game := internalToExternal(gameInternal)
+	msg := fmt.Sprintf("Game %s has %d cards", gameID, len(game.Cards))
+
+	res := buildResponse(game, &errors.ErrorInternal{}, msg)
+	serveResponse(w, res)
 }

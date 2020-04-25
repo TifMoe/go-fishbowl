@@ -2,7 +2,6 @@ package main
 
 import (
     "net/http"
-	"fmt"
 	"log"
 
 	"github.com/go-redis/redis"
@@ -14,13 +13,19 @@ import (
 )
 
 func main() {
-	port := api.GetEnv("PORT", "8080")
-	password := api.GetEnv("REDIS_PASSWORD", "")
+
+	var (
+		appPort 	= api.GetEnv("PORT", "8080")
+		redisHost     	= api.GetEnv("REDIS_HOST", "localhost")
+		redisPort     	= api.GetEnv("REDIS_PORT", "6379")
+		redisPassword 	= api.GetEnv("REDIS_PASSWORD", "")
+		maxCards 	= api.GetIntEnv("MAX_CARDS", 10)
+	)
 
 	// Establish redis connection
 	client := redis.NewClient(&redis.Options{
-		Addr: "db:6379",
-		Password: password,
+		Addr: redisHost + ":" + redisPort,
+		Password: redisPassword,
 		DB: 0,
 	})
 
@@ -33,14 +38,14 @@ func main() {
 	// Instantiate repository and service layer
 	v := validator.New()
 	repo := repository.NewRedisConnection(client)
-	svc := service.NewGameService(repo, v)
+	svc := service.NewGameService(repo, v, maxCards)
 
 	// Instantiate controllers and router
 	handlers := api.NewGameController(svc)
 	router := api.NewRouter(handlers)
 
 	// Run
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	if err := http.ListenAndServe(":" + appPort, router); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 }

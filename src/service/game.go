@@ -5,33 +5,35 @@ import (
 	"log"
 
 	"gopkg.in/go-playground/validator.v9"
+	"github.com/google/uuid"
 
 	"github.com/tifmoe/go-fishbowl/src/repository"
 )
 
 // NewGameService will instantiate a new game service
-func NewGameService(r repository.Repository, v *validator.Validate) *Service {
-	return &Service{
+func NewGameService(r repository.Repository, v *validator.Validate, max int) *service {
+	return &service{
 		Repo: r,
 		Validate: v,
+		MaximumCards: max,
 	}
 }
 
 // GameService is interface with methods to interact with redis db	
 type GameService interface {
     NewGame() (string, error)
-	SaveCard(gameID string, card *CardInput) error
-	FetchCards(gameID string) (string, error)
+	SaveCard(gameID string, card *CardInput) (string, error)
+	GetGame(gameID string) (game *Game, err error)
 }
 
-// Service holds dependencies of service layer
-type Service struct {
-	Repo repository.Repository
-	Validate *validator.Validate
+type service struct {
+	Repo 			repository.Repository
+	Validate 		*validator.Validate
+	MaximumCards 	int
 }
 
 // NewGame is service for generating new game namespace and instantiating in the database
-func (s *Service) NewGame() (string, error) {
+func (s *service) NewGame() (string, error) {
 	// Generate new random word pair for namespace
 	nameSpace, err := GetRandomWords()
 	if err != nil {
@@ -49,29 +51,50 @@ func (s *Service) NewGame() (string, error) {
 	return nameSpace, nil
 }
 
-// SaveNewCard is controller for saving a new card to the existing game
-func (s *Service) SaveNewCard(gameID string, card *CardInput) error {
+// SaveCard is controller for saving a new card to the existing game
+func (s *service) SaveCard(gameID string, card *CardInput) (string, error) {
 
 	// Terminate the request if the input is not valid
 	if err := s.Validate.Struct(card); err != nil {
 		log.Printf("error validating values from card %v: %v", card, err)
-		return err
+		return "", err
 	}
 
-	err := s.Repo.SaveCard(gameID, card.Value)
+	existingGame, err := s.Repo.GetGame(gameID)
+
+	if existingGame == nil || err != nil{
+		fmt.Printf("Attempted to save card to non-existent game %s: %v\n", gameID, err)
+		return "", err
+	} 
+
+	if len(existingGame.Cards) >= s.MaximumCards {
+		err = fmt.Errorf("game already has maximum number of cards")
+		return "", err
+	}
+
+	newCard := &repository.Card{
+		ID: uuid.New().String(),
+		Value: card.Value, 
+		Used: false,
+	}
+	existingGame.Cards = existingGame.AddCard(*newCard)
+
+	err = s.Repo.UpdateGame(existingGame)
 	if err != nil {
 		log.Printf("error saving card %v: %v", card, err)
-		return err
+		return "", err
 	}
-	return nil
+	return newCard.ID, nil
 }
 
-// FetchCards is controller for saving a new card to the existing game
-func (s *Service) FetchCards(gameID string) (cards string, err error) {
-	game, err := s.Repo.GetGame(gameID)
-	fmt.Printf("Here is the game: %+v", game)
+// GetGame is controller for saving a new card to the existing game
+func (s *service) GetGame(gameID string) (game *Game, err error) {
+	gameDTO, err := s.Repo.GetGame(gameID)
+	fmt.Printf("Here is the game: %+v", gameDTO)
 	if err != nil {
-		return 
+		return
 	}
-	return "Yes", nil
+	game = gameDTOtoInternal(gameDTO)
+	fmt.Printf("here is the gaame internal: %+v", game)
+	return
 }

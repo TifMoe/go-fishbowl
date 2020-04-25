@@ -8,8 +8,9 @@ type Game struct {
 
 // Card is the DTO for card values
 type Card struct {
+	ID 		string		`json:"id,omitempty"`
 	Value   string     `json:"value,omitempty"`
-	Used 	bool       `json:"used,omitempty"`
+	Used 	bool       `json:"used"`
 }
 
 // AddCard is helper function to add a new gard to an existing game

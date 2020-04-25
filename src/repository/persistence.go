@@ -22,7 +22,7 @@ func NewRedisConnection(c *redis.Client) *conn {
 // Repository is interface with methods to interact with redis db	
 type Repository interface {
     SaveNewGame(gameID string) error
-	SaveCard(gameID, value string) error
+	UpdateGame(game *Game) error
 	GetGame(gameID string) (game *Game, err error)
 }
 
@@ -69,21 +69,9 @@ func (c conn) GetGame(gameID string) (game *Game, err error) {
 	return game, nil
 }
 
-func (c conn) SaveCard(gameID, value string) error {
-	card := Card{
-		Value: value, 
-		Used: false,
-	}
-
-	existingGame, err := c.GetGame(gameID)
-
-	if existingGame == nil || err != nil{
-		fmt.Printf("Attempted to save card to non-existent game %s: %v\n", gameID, err)
-		return err
-	} 
-	// Add card to existing game
-	existingGame.Cards = existingGame.AddCard(card)
-	updatedGame, err := json.Marshal(existingGame)
+func (c conn) UpdateGame(game *Game) error {
+	gameID := game.ID
+	updatedGame, err := json.Marshal(game)
     if err != nil {
 		fmt.Printf("Error marshalling updated game %s: %v\n", gameID, err)
 		return err
@@ -91,7 +79,7 @@ func (c conn) SaveCard(gameID, value string) error {
 
     err = c.Client.Set(gameID, updatedGame, ttl).Err()
     if err != nil {
-		fmt.Printf("Error saving new card %v: %v\n", card, err)
+		fmt.Printf("Error saving game %v: %v\n", gameID, err)
 		return err
     }
 	return nil

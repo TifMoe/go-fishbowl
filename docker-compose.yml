@@ -3,10 +3,10 @@ services:
   app:
     build: .
     environment:
-      - PORT
-      - REDIS_PASSWORD
+      - REDIS_HOST=db
+      - MAX_CARDS=3
     ports:
-      - "80:8080"
+      - "8080:8080"
     depends_on:
       - db
     networks:

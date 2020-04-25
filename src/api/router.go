@@ -13,15 +13,17 @@ const (
 )
 
 // NewRouter will build a new router for the routes defined below
-func NewRouter(c *Controller) *mux.Router {
+func NewRouter(c GameController) *mux.Router {
 
 	r := mux.NewRouter()
 
 	// Serve API routes
 	api := r.PathPrefix("/v1/api/").Subrouter()
-	api.HandleFunc("/game", c.NewGame).Methods("GET")
-	api.HandleFunc("/game/{gameID}", c.FetchCards).Methods("GET")
-	api.HandleFunc("/game/{gameID}/card", c.SaveNewCard).Methods("POST")
+	api.HandleFunc("/game", c.NewGame).Methods("POST")
+	api.HandleFunc("/game/{gameID}", c.GetGame).Methods("GET")
+	//api.HandleFunc("/game/{gameID}", c.DeleteGame).Methods("DELETE")
+	api.HandleFunc("/game/{gameID}/card", c.NewCard).Methods("POST")
+	//api.HandleFunc("/game/{gameID}/card/{cardID}", c.UpdateCard).Methods("PUT")
 
 	// Serve Frontend routes
 	// For requests to dynamically generated game pages, serve index.html

@@ -24,7 +24,11 @@ help:
 	@echo
 
 local:
-	docker-compose up --build --force-recreate
+	docker-compose up --build --force-recreate --abort-on-container-exit
+
+lint:
+	# Requires golangci/tap/golangci-lint
+	golangci-lint run
 
 build:
 	@echo "building ${BIN_NAME}"
