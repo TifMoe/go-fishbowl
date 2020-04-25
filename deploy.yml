@@ -1,12 +1,12 @@
 version: '3.0'
 services:
   app:
-    build: .
+    image: tifmoe/go-fishbowl:latest
     environment:
       - REDIS_HOST=db
-      - MAX_CARDS=3
+      - MAX_CARDS=40
     ports:
-      - "8080:8080"
+      - "80:8080"
     depends_on:
       - db
     networks:

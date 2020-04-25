@@ -17,9 +17,10 @@ For development, you might find it easier to run the backend and frontend separa
 
 Starting the go server:
 ```console
+$ docker-compose up db
 $ go run cmd/go-fishbowl/main.go
 ```
-You can hit the api with a curl like `curl localhost:8080/api/ping`
+You can hit the api directly to start games and add cards `curl POST localhost:8080/v1/api/game/`
 
 And in another terminal starting the frontend:
 ```console
@@ -34,5 +35,7 @@ $ make local
 Then navigate to http://localhost:8080 to check out a preview of the dockerized app as it will be deployed to production
 
 ### Testing
-
-``make test``
+Run the backend unit tests with:
+```console
+$ make test
+```

@@ -1,5 +1,6 @@
 import React from 'react';
-import fishbowl from '../assets/Fishbowl4.svg';
+import fishbowl from '../assets/Fishbowl3.svg';
+// import CardInput from '../components/CardInput';
 import './Game.css';
 
 const GamePage = ({ match }) => {
@@ -9,6 +10,7 @@ const GamePage = ({ match }) => {
         <header className="Game-header">
           <img src={fishbowl} className="Game-logo" alt="logo" />
           <h1>{gameId}</h1>
+          {/* <CardInput gameId={gameId}/> */}
           <h2>Sorry, your Fishbowl is still under development</h2>
         </header>
     );
