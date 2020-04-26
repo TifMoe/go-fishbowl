@@ -8,10 +8,15 @@ const GamePage = ({ match }) => {
 
     return (
         <header className="Game-header">
-          <img src={fishbowl} className="Game-logo" alt="logo" />
-          <h1>{gameId}</h1>
-          {/* <CardInput gameId={gameId}/> */}
           <h2>Sorry, your Fishbowl is still under development</h2>
+          <img src={fishbowl} className="Game-logo" alt="logo" />
+          <p>
+            Send this link to your friends to join
+            : <a href={`https://fishbowl.rocks/game/${gameId}`} className="Game-link">
+                fishbowl.rocks/game/{gameId}
+              </a>
+          </p>
+          {/* <CardInput gameId={gameId}/> */}
         </header>
     );
   }

@@ -1,13 +1,14 @@
-.Game {
+.Home {
     text-align: center;
   }
   
-  .Game-logo {
-    height: 40vmin;
+  .Home-logo {
+    width: 60%;
+    min-width: 200px;
     pointer-events: none;
   }
   
-  .Game-header {
+  .Home-header {
     background-color: #282c34;
     min-height: 100vh;
     display: flex;
@@ -18,8 +19,7 @@
     color: white;
   }
   
-  .Game-link {
-    color: #2EDDCB;
+  .Home-link {
+    color: #61dafb;
   }
-  
   

@@ -37,7 +37,6 @@ class Picker extends Component {
                     Start a new game!
                 </button>
             </Link>
-            <p> /{this.state.msg} </p>
         </div>
         );
     }
