@@ -1,4 +1,5 @@
 # go-fishbowl
+## check out the game here: [fishbowl.rocks](https://fishbowl.rocks/)
 
 A Go + React web app to play FishBowl remotely
 
