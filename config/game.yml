@@ -30,7 +30,7 @@ spec:
         - name: REDIS_HOST
           value: redis-db-service.default.svc
         - name: MAX_CARDS
-          value: 50
+          value: '50'
         ports:
         - containerPort: 8080
 ---
