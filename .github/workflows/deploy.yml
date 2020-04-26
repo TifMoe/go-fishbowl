@@ -21,16 +21,6 @@ jobs:
       - name: Push the tagged Docker image
         run: docker push tifmoe/go-fishbowl:latest
 
-      - name: Copy deployment file to droplet via ssh
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-          port: ${{ secrets.PORT }}
-          source: "deploy.yaml"
-          target: "deploy"
-
       - name: Deploy Docker Image to Digital Ocean Droplet
         uses: appleboy/ssh-action@master
         env:
@@ -46,4 +36,4 @@ jobs:
             docker stop $(docker ps -a -q)
             echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
             docker pull tifmoe/go-fishbowl:latest
-            docker-compose -f deploy/deploy.yml up -d --force-recreate --build
+            docker-compose -f $GITHUB_WORKSPACE/deploy.yml up -d --force-recreate --build
