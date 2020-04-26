@@ -1,6 +1,6 @@
 # Credits
 
-## Development Lead
+## Development Leads
 
 - Tiffany Moeller [tifmoe](https://github.com/tifmoe)
 
