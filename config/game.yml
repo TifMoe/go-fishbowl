@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game
+  labels:
+    app: fishbowl
+spec:
+  selector:
+    matchLabels:
+      app: fishbowl
+      tier: game
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fishbowl
+        tier: game
+    spec:
+      containers:
+      - name: fishbowl-app
+        image: tifmoe/go-fishbowl:latest
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 250m
+            memory: 200Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: REDIS_HOST
+          value: redis-db-service.default.svc
+        - name: MAX_CARDS
+          value: 50
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fishbowl-service
+spec:
+  type: LoadBalancer 
+  ports:
+  - name: fishbowl
+    port: 80
+    targetPort: 8080
+  selector:
+    app: fishbowl
+    tier: game

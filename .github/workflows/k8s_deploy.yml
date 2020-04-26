@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Login to DockerHub Registry
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build a new Docker image
+        run: docker build --no-cache --file Dockerfile --tag tifmoe/go-fishbowl:latest .
+
+      - name: Push the tagged Docker image
+        run: docker push tifmoe/go-fishbowl:latest
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Save DigitalOcean kubeconfig
+        run: doctl kubernetes cluster kubeconfig save ${{ secrets.DIGITALOCEAN_K8S_CLUSTER }}
+
+      - name: Deploy Redis to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/redis.yml
+
+      - name: Deploy Game to DigitalOcean Kubernetes
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/game.yml
+ 
+      - name: Verify deployment successful
+        run: kubectl rollout status deployment/game
