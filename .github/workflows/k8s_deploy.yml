@@ -16,10 +16,13 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Build a new Docker image
-        run: docker build --no-cache --file Dockerfile --tag tifmoe/go-fishbowl:latest .
+        run: docker build --no-cache --file Dockerfile --tag tifmoe/go-fishbowl:$(echo $GITHUB_SHA | head -c7) .
 
       - name: Push the tagged Docker image
-        run: docker push tifmoe/go-fishbowl:latest
+        run: docker push tifmoe/go-fishbowl:$(echo $GITHUB_SHA | head -c7)
+
+      - name: Update game deployment file with new SHA
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|tifmoe/static-go-fishbowl:'${TAG}'|' $GITHUB_WORKSPACE/config/game.yml
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2

@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: fishbowl-app
-        image: tifmoe/go-fishbowl:latest
+        image: <IMAGE>
         imagePullPolicy: Always
         resources:
           requests:
