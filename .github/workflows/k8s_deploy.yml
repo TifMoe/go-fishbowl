@@ -22,7 +22,7 @@ jobs:
         run: docker push tifmoe/go-fishbowl:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update game deployment file with new SHA
-        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|tifmoe/static-go-fishbowl:'${TAG}'|' $GITHUB_WORKSPACE/config/game.yml
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|tifmoe/go-fishbowl:'${TAG}'|' $GITHUB_WORKSPACE/config/game.yml
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
