@@ -27,6 +27,9 @@ And in another terminal starting the frontend:
 ```console
 $ cd ui/ && npm start
 ```
+
+Note: If this is your first time running the app, you will have to run `npm install` before `npm start`.
+
 You can view the frontend by navigating to http://localhost:3000
 
 To deploy the web app locally should be as simple as:
