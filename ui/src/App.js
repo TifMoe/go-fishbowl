@@ -5,7 +5,6 @@ import './App.css';
 import HomePage from './pages/Home';
 import GamePage from './pages/Game';
 
-//Root Component
 function App() {
   return (
     <BrowserRouter>
