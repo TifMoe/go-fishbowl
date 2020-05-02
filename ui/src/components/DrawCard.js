@@ -9,9 +9,15 @@ class DrawCard extends Component {
         super();
         this.state = {
             id: "",
-            card: "nothing yet..."
+            card: "nothing yet...",
+            showCard: false,
         }
         this.drawCard = this.drawCard.bind(this);
+        this.endTurn = this.endTurn.bind(this);
+    }
+
+    endTurn() {
+        this.setState({showCard: false})
     }
 
     drawCard() {
@@ -26,6 +32,7 @@ class DrawCard extends Component {
                 this.setState(() => {
                     return { card: cards[0].value,
                         id: cards[0].id,
+                        showCard: true,
                     }
                 })
             }
@@ -39,17 +46,26 @@ class DrawCard extends Component {
         return (
         <div>
             <button onClick={this.drawCard}>Draw Card</button>
+            <button onClick={this.endTurn}>End Turn</button>
+            { this.state.showCard ? <Card card={this.state.card}/> : null }
+        </div>
+        );
+    }
+}
+
+class Card extends Component {
+    render() {
+        return (
             <div className="card">
                 <div className="card-value">
-                    <p>{this.state.card}</p>
+                    <p>{this.props.card}</p>
                 </div>
                 <div className="actions">
                     <button className="done">Got it!</button>
                     <button className="skip">Skip</button>
                 </div>
             </div>
-        </div>
-        );
+        )
     }
 }
 
