@@ -56,5 +56,9 @@ clean:
 	@test ! -e bin/${BIN_NAME} || rm bin/${BIN_NAME}
 
 test:
-	go test ./...
+	go test ./... -v -cover -coverprofile=coverage.out
+	@echo "---------------------------"
+	@echo "Printing coverage report... "
+	@echo "---------------------------"
+	go tool cover -func=coverage.out
 

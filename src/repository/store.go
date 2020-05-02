@@ -59,7 +59,6 @@ func (c conn) GetGame(gameID string) (game *Game, err error) {
 		fmt.Printf("Game %s does not exist: %v\n", gameID, err)
 		return game, err
     }
-	fmt.Println(data)
 
 	err = json.Unmarshal([]byte(data), &game)
     if err != nil {
