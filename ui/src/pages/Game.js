@@ -1,8 +1,9 @@
 import React from 'react';
-import fishbowl from '../assets/Fishbowl3.svg';
 import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
+import DrawCard from '../components/DrawCard';
 
+import fishbowl from '../assets/Fishbowl3.svg';
 import './Game.css';
 
 const GamePage = ({ match }) => {
@@ -11,18 +12,18 @@ const GamePage = ({ match }) => {
     return (
       <div className="Game-page">
           <GameTagHeader gameId={gameId}/>
-            <h2>Sorry, your Fishbowl is still under development</h2>
+          <h2>Sorry, your Fishbowl is still under development</h2>
 
           <div className="row">
-            <div className="column">
-              <img src={fishbowl} className="Game-logo" alt="logo" />
+            <div className="col-left">
+              <div className="logo">
+                <img src={fishbowl} className="bowl" alt="logo" />
+              </div>
               <CardInput gameId={gameId}/>
             </div>
 
-            <div className="column">
-              <p>
-                Draw Card component coming soon!
-              </p>
+            <div className="col-right">
+              <DrawCard gameId={gameId}/>
             </div>
           </div>
         </div>

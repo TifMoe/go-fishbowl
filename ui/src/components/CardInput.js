@@ -49,7 +49,7 @@ class CardInput extends Component {
                             type="text"
                             name="card"
                             value={card}
-                            maxlength="30"
+                            maxLength="30"
                             minLength="2"
                             onChange={this.onChange}
                         />
