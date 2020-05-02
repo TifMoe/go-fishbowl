@@ -7,7 +7,7 @@
     pointer-events: none;
   }
   
-  .Game-header {
+  .Game-page {
     background-color: #282c34;
     min-height: 100vh;
     display: flex;
@@ -22,4 +22,11 @@
     color: #2EDDCB;
   }
   
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 50%;
+}
   

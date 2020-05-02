@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import './NamePicker.css';
+import './CardInput.css';
 
 class CardInput extends Component {
 
@@ -39,15 +39,23 @@ class CardInput extends Component {
     render() {
         const { card } = this.state;
         return (
-            <form onSubmit={this.onSubmit}>
-                <input
-                type="text"
-                name="card"
-                value={card}
-                onChange={this.onChange}
-                />
-                <button type="submit">Drop in bowl!</button>
-            </form>
+            <div className="card-input">
+                <div className="explainer">
+                    <p> Invite players to enter nouns below to fill up your bowl! </p>
+                    <p className="small-text"> (max 30 cards total) </p>
+                </div>
+                    <form onSubmit={this.onSubmit}>
+                        <input
+                            type="text"
+                            name="card"
+                            value={card}
+                            maxlength="30"
+                            minLength="2"
+                            onChange={this.onChange}
+                        />
+                        <button type="submit">Drop it in!</button>
+                    </form>
+            </div>
         );
     }
 }
