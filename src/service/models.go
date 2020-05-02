@@ -12,7 +12,7 @@ type WordChoices struct {
 
 // CardInput contains value for new card from game
 type CardInput struct {
-	Value		string `json:"value" validate:"required,min=2,max=50"`
+	Value		string `json:"value" validate:"required,min=2,max=30"`
 }
 
 // IsEmpty will return true if Error struct does not contain something other than default
@@ -33,6 +33,7 @@ type Card struct {
 	Used 	bool       `json:"used"`
 }
 
+// TODO: This is gross, optimize later
 func gameDTOtoInternal(dto *repository.Game) *Game {
 	game := &Game{}
 	game.ID = dto.ID
