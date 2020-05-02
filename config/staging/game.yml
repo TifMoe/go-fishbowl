@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-staging
+  labels:
+    app: fishbowl-staging
+spec:
+  selector:
+    matchLabels:
+      app: fishbowl-staging
+      tier: game-staging
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fishbowl-staging
+        tier: game-staging
+    spec:
+      containers:
+      - name: fishbowl-app-staging
+        image:  <IMAGE>
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 150m
+            memory: 100Mi
+        env:
+        - name: GET_HOSTS_FROM
+          value: dns
+        - name: REDIS_HOST
+          value: redis-db-service.default.svc
+        - name: MAX_CARDS
+          value: '50'
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fishbowl-service-staging
+spec:
+  type: LoadBalancer 
+  ports:
+  - name: fishbowl-staging
+    port: 80
+    targetPort: 8080
+  selector:
+    app: fishbowl-staging
+    tier: game-staging
