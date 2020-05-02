@@ -9,13 +9,27 @@ import (
 	"time"
 )
 
-// RandomService is interface to find random words for namespacing new games
+// NewRandomService will instantiate a new random service
+func NewRandomService() RandomService {
+	return &random{}
+}
+
+// RandomService is interface for collection of methods to draw random values
 type RandomService interface {
+    GetRandomCard(cards []Card) *Card
 	GetRandomWords() (string, error)
 }
 
-// GetRandomWords is service to 
-func GetRandomWords() (string, error) {
+type random struct {}
+
+// GetRandomCard is utility function to select a random card from a slice
+func (r *random) GetRandomCard(cards []Card) *Card {
+	rand.Seed(time.Now().Unix())
+	return &cards[rand.Intn(len(cards))]
+}
+
+// GetRandomWords is utility function to pick a random pairing of adj + noun to make game namespace
+func (r *random) GetRandomWords() (string, error) {
 	words, err := readWords()
 	if err != nil {
 		return "", err
@@ -28,7 +42,7 @@ func GetRandomWords() (string, error) {
 }
 
 func randPicker(words []string) string {
-	rand.Seed(time.Now().Unix()) // initialize global pseudo random generator
+	rand.Seed(time.Now().Unix())
 	return words[rand.Intn(len(words))]
 }
 

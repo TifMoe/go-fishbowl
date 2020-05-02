@@ -19,11 +19,15 @@ func NewRouter(c GameController) *mux.Router {
 
 	// Serve API routes
 	api := r.PathPrefix("/v1/api/").Subrouter()
+	// Game resource
 	api.HandleFunc("/game", c.NewGame).Methods("POST")
 	api.HandleFunc("/game/{gameID}", c.GetGame).Methods("GET")
-	//api.HandleFunc("/game/{gameID}", c.DeleteGame).Methods("DELETE")
+	api.HandleFunc("/game/{gameID}", c.ResetGame).Methods("DELETE")
+	api.HandleFunc("/game/{gameID}/start", c.StartRound).Methods("PATCH") // sets all cards as un-used
+	// Card resource
 	api.HandleFunc("/game/{gameID}/card", c.NewCard).Methods("POST")
-	//api.HandleFunc("/game/{gameID}/card/{cardID}", c.UpdateCard).Methods("PUT")
+	api.HandleFunc("/game/{gameID}/card/{cardID}/used", c.MarkCardUsed).Methods("PATCH") // marks single card as used
+	api.HandleFunc("/game/{gameID}/card/random", c.GetRandomCard).Methods("GET") // returns a random un-used card
 
 	// Serve Frontend routes
 	// For requests to dynamically generated game pages, serve index.html
