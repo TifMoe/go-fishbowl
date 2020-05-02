@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/go-redis/redis"
-	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/tifmoe/go-fishbowl/src/api"
 	"github.com/tifmoe/go-fishbowl/src/service"
@@ -36,9 +35,9 @@ func main() {
 	log.Print("Successfully connected to the database!")
 
 	// Instantiate repository and service layer
-	v := validator.New()
 	repo := repository.NewRedisConnection(client)
-	svc := service.NewGameService(repo, v, maxCards)
+	rand := service.NewRandomService()
+	svc := service.NewGameService(repo, rand, maxCards)
 
 	// Instantiate controllers and router
 	handlers := api.NewGameController(svc)

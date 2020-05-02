@@ -29,7 +29,7 @@ func TestNewGameController(t *testing.T) {
         {
 			name: "request to create new game succeeds",
 			mockService: newMockService("successful-game"), 
-			expectedStatus: 200, 
+			expectedStatus: 201,
 			expectedResponse: Response{
 				Result: []Game{
 					Game{
@@ -217,7 +217,7 @@ func TestGetGameController(t *testing.T) {
 						Cards: []Card{
 							Card{
 								ID: "test-card",
-								Value: "Funny fish",
+								Value: "Pants king",
 								Used: false,
 							},
 						},
@@ -293,6 +293,96 @@ func TestGetGameController(t *testing.T) {
     }
 }
 
+
+func TestGetRandomCardController(t *testing.T) {
+
+	type test struct {
+		name 				string
+		mockService 		*mockService
+		expectedStatus		int
+        expectedResponse  	Response
+	}
+
+	tests := []test{
+        {
+			name: "request to fetch random card for game succeeds",
+			mockService: newMockService("single"),
+			expectedStatus: 200,
+			expectedResponse: Response{
+				Result: []Game{
+					Game{
+						ID: "game-name",
+						Cards: []Card{
+							Card{
+								ID: "random-card",
+								Value: "Trump's carrot fingers",
+								Used: false,
+							},
+						},
+					},
+				},
+				Success: true,
+				Error: []errors.Error{},
+				Message: "",
+			},
+		},
+		{
+			name: "request to fetch random card when no unused cards left is successful",
+			mockService: newMockService("empty"),
+			expectedStatus: 200,
+			expectedResponse: Response{
+				Result: []Game{
+					Game{
+						ID: "game-name",
+						Cards: []Card{},
+					},
+				},
+				Success: true,
+				Error: []errors.Error{},
+				Message: "",
+			},
+		},
+		{
+			name: "request to fetch random card fails when internal error",
+			mockService: newMockService("error"),
+			expectedStatus: 500,
+			expectedResponse: Response{
+				Result: []Game{},
+				Success: false,
+				Error: []errors.Error{
+					errors.Error{
+						Code: 5000,
+						Message: "Internal server error",
+					},
+				},
+				Message: "",
+			},
+		},
+    }
+
+    for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var (
+				response = Response{}
+			)
+
+			rr := httptest.NewRecorder()
+			controller := NewGameController(tc.mockService)
+			router := NewRouter(controller)
+
+			req, err := http.NewRequest("GET",  "/v1/api/game/game-name/card/random", nil)
+			assert.Nil(t, err)
+			router.ServeHTTP(rr, req)
+			if err := json.NewDecoder(rr.Body).Decode(&response); err != nil {
+				log.Fatalln(err)
+			}
+
+			assert.Equal(t, tc.expectedStatus, rr.Code)
+			assert.Equal(t, tc.expectedResponse, response)
+		})
+    }
+}
+
 func newMockService(c string) *mockService {
 	return &mockService{
 		Case: c,
@@ -332,7 +422,7 @@ func (s *mockService) GetGame(gameID string) (*service.Game, error){
 		game.Cards = []service.Card{
 			service.Card{
 				ID: "test-card",
-				Value: "Funny fish",
+				Value: "Pants king",
 				Used: false,
 			},
 		}
@@ -344,4 +434,33 @@ func (s *mockService) GetGame(gameID string) (*service.Game, error){
 	default:
 		return game, nil
 	}
+}
+
+
+func (s *mockService) GetRandomCard(gameID string) (card *service.Card, err error) {
+	switch s.Case {
+	case "error":
+		err = fmt.Errorf("Error fetching random card")
+		return
+	case "single":
+		card = &service.Card{
+				ID: "random-card",
+				Value: "Trump's carrot fingers",
+				Used: false,
+			}
+		return
+	}
+	return
+}
+
+func (s *mockService) MarkCardUsed(gameID, cardID string) error {
+	return nil
+}
+
+func (s *mockService) SetCardsUnused(gameID string) (*service.Game, error) {
+	return &service.Game{}, nil
+}
+
+func (s *mockService) DeleteCards(gameID string) error {
+	return nil
 }

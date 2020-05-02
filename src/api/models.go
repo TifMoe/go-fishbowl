@@ -32,6 +32,7 @@ type Card struct {
 	Used 	bool  	`json:"used"`
 }
 
+// TODO: This is gross, optimize later
 func internalToExternal(g *service.Game) Game {
 	game := Game{}
 	game.ID = g.ID
@@ -40,13 +41,18 @@ func internalToExternal(g *service.Game) Game {
 	cards := make([]Card, 0, cardCount)
 	if cardCount > 0 {
 		for _, card := range g.Cards {
-			c := Card{}
-			c.ID = card.ID
-			c.Value = card.Value
-			c.Used = card.Used
+			c := internalToExternalCard(&card)
 			cards = append(cards, c)
 		}
 	}
 	game.Cards = cards
 	return game
+}
+
+func internalToExternalCard(card *service.Card) Card {
+	c := Card{}
+	c.ID = card.ID
+	c.Value = card.Value
+	c.Used = card.Used
+	return c
 }

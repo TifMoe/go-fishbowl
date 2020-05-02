@@ -24,9 +24,13 @@ type GameController interface {
 	NewGame(w http.ResponseWriter, r *http.Request)
 	GetGame(w http.ResponseWriter, r *http.Request)
 	NewCard(w http.ResponseWriter, r *http.Request)
+	GetRandomCard(w http.ResponseWriter, r *http.Request)
+	MarkCardUsed(w http.ResponseWriter, r *http.Request)
+	StartRound(w http.ResponseWriter, r *http.Request)
+	ResetGame(w http.ResponseWriter, r *http.Request)
 }
 
-// Controller holds services and validators for Game Handlers
+// Controller holds service for Game Handlers
 type controller struct {
 	Svc service.GameService
 }
@@ -49,8 +53,7 @@ func (c *controller) NewGame(w http.ResponseWriter, r *http.Request) {
 		ID: nameSpace,
 	}
 	res := buildResponse(game, &errors.ErrorInternal{}, nameSpace)
-
-	// Return response
+	res.Status = 201
 	serveResponse(w, res)
 }
 
@@ -111,5 +114,84 @@ func (c *controller) GetGame(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("Game %s has %d cards", gameID, len(game.Cards))
 
 	res := buildResponse(game, &errors.ErrorInternal{}, msg)
+	serveResponse(w, res)
+}
+
+// GetRandomCard is controller to return a random un-used card for a specific game
+func (c *controller) GetRandomCard(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+	cards := []Card{}
+
+	internalCard, err := c.Svc.GetRandomCard(gameID)
+	if err != nil {
+		log.Printf("error fetching cards: %v", err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+	if internalCard != nil {
+		cards = []Card{internalToExternalCard(internalCard)}
+	}
+
+	game := Game{
+		ID: gameID,
+		Cards: cards,
+	}
+
+	res := buildResponse(game, &errors.ErrorInternal{}, "")
+	serveResponse(w, res)
+}
+
+// MarkCardUsed is controller to update values of a specific card
+func (c *controller) MarkCardUsed(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+	cardID := params["cardID"]
+
+	err := c.Svc.MarkCardUsed(gameID, cardID)
+	if err != nil {
+		log.Printf("error marking card %s as used: %v", cardID, err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+
+	game := Game{}
+	res := buildResponse(game, &errors.ErrorInternal{}, "")
+	serveResponse(w, res)
+}
+
+// StartRound is controller to start a new round of the game by setting all cards to un-used state
+func (c *controller) StartRound(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+
+	newRound, err := c.Svc.SetCardsUnused(gameID)
+	if err != nil {
+		log.Printf("error setting cards unused for game %s: %v", gameID, err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+	round := internalToExternal(newRound)
+	res := buildResponse(round, &errors.ErrorInternal{}, "")
+	serveResponse(w, res)
+}
+
+// ResetGame is controller to delete all cards for a given game
+func (c *controller) ResetGame(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+
+	err := c.Svc.DeleteCards(gameID)
+	if err != nil {
+		log.Printf("error deleting cards for game %s: %v", gameID, err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+	game := Game{}
+	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
 }

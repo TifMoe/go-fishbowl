@@ -58,8 +58,13 @@ func buildResponse(game Game, er *errors.ErrorInternal, message string) *apiResp
 }
 
 func buildResult(g Game, m string) *Response {
+	game := []Game{}
+	if g.ID != "" {
+		game = []Game{g}
+	}
+
 	return &Response{
-		Result: []Game{g},
+		Result: game,
 		Success: true,
 		Error: []errors.Error{},
 		Message: m,
