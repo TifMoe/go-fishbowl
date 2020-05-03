@@ -66,9 +66,9 @@ class GamePage extends Component {
             <h2 className="title">Sorry, your Fishbowl is still under development</h2>
 
               <div className="col-left">
-                { this.state.ready ? 
-                  <DrawCard gameId={gameId}/> : 
-                  <CardInput gameId={gameId} done={this.startGame}/> 
+                { this.state.ready ?
+                  <DrawCard gameId={gameId}/> :
+                  <CardInput gameId={gameId} done={this.startGame}/>
                 }
               </div>
 

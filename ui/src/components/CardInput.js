@@ -8,8 +8,25 @@ class CardInput extends Component {
         super();
         this.state = {
             card: '',
+            count: 0,
         };
         this.onSubmit = this.onSubmit.bind(this);
+        this.getCardCount = this.getCardCount.bind(this);
+    }
+
+    getCardCount() {
+        axios({
+            method: 'get',
+            url: '/v1/api/game/' + this.props.gameId,
+            timeout: 4000,    // 4 seconds timeout
+          })
+        .then((response) => {
+            console.log(response);
+            this.setState({count: response.data.result[0].unused_cards})
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     onChange = (e) => {
@@ -30,6 +47,7 @@ class CardInput extends Component {
         .then((result) => {
             console.log(result)
             this.setState({card: ""})
+            this.getCardCount();
         })
         .catch(function (error) {
             console.log(error);
@@ -57,17 +75,18 @@ class CardInput extends Component {
                             <button type="submit">Drop it in!</button>
                     </form>
                 </div>
-                <StartGame startHandler={this.props.done}/>
+                <StartGame startHandler={this.props.done} ready={this.state.count > 3}/>
             </div>
         );
     }
 }
 
-const StartGame = ({ startHandler }) => (
+const StartGame = ({ startHandler, ready }) => (
     <div>
         <button
             className="start-button"
             onClick={startHandler}
+            disabled={!ready}
         >Start Game</button>
     </div>
 )
