@@ -41,20 +41,22 @@ class CardInput extends Component {
         return (
             <div className="card-input">
                 <div className="explainer">
-                    <p> Invite players to enter nouns below to fill up your bowl! </p>
-                    <p className="small-text"> (max 30 cards total) </p>
+                    <p> Invite players to submit nouns below to fill up your bowl! </p>
+                    <p className="small-text"> (max 50 cards total) </p>
                 </div>
+                <div className="card-form">
                     <form onSubmit={this.onSubmit}>
-                        <input
-                            type="text"
-                            name="card"
-                            value={card}
-                            maxLength="30"
-                            minLength="2"
-                            onChange={this.onChange}
-                        />
-                        <button type="submit">Drop it in!</button>
+                            <input
+                                type="text"
+                                name="card"
+                                value={card}
+                                maxLength="30"
+                                minLength="2"
+                                onChange={this.onChange}
+                            />
+                            <button type="submit">Drop it in!</button>
                     </form>
+                </div>
             </div>
         );
     }

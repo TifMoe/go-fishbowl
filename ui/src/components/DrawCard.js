@@ -89,7 +89,7 @@ class DrawCard extends Component {
                     color={color}
                 />
             }
-            <NextRound  gameId={this.props.gameId} ready={this.state.showNextRound}/>
+            <NextRound  gameId={this.props.gameId} active={this.state.showNextRound}/>
         </div>
         );
     }

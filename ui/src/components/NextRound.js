@@ -9,7 +9,6 @@ class NextRound extends Component {
         super();
         this.state = {
             round: 1,
-            disabled: true
         }
         this.nextRound = this.nextRound.bind(this);
     }
@@ -25,7 +24,6 @@ class NextRound extends Component {
         .then((response) => {
             console.log(response);
             this.setState({round: this.state.round + 1});
-            this.setState({disabled: true})
         })
         .catch(function (error) {
             console.log(error);
@@ -38,7 +36,7 @@ class NextRound extends Component {
             <button 
                 onClick={this.nextRound}
                 className="next-round"
-                disabled={!this.props.ready && this.state.disabled}
+                disabled={!this.props.active}
             >Next Round</button>
         </div>
         );
