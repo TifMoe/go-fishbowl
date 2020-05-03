@@ -23,11 +23,13 @@ func NewGameController(svc service.GameService) *controller {
 type GameController interface {
 	NewGame(w http.ResponseWriter, r *http.Request)
 	GetGame(w http.ResponseWriter, r *http.Request)
+	UpdateGame(w http.ResponseWriter, r *http.Request)
+	ResetGame(w http.ResponseWriter, r *http.Request)
+
 	NewCard(w http.ResponseWriter, r *http.Request)
 	GetRandomCard(w http.ResponseWriter, r *http.Request)
 	MarkCardUsed(w http.ResponseWriter, r *http.Request)
 	StartRound(w http.ResponseWriter, r *http.Request)
-	ResetGame(w http.ResponseWriter, r *http.Request)
 }
 
 // Controller holds service for Game Handlers
@@ -53,6 +55,27 @@ func (c *controller) NewGame(w http.ResponseWriter, r *http.Request) {
 		ID: nameSpace,
 	}
 	res := buildResponse(game, &errors.ErrorInternal{}, nameSpace)
+	res.Status = 201
+	serveResponse(w, res)
+}
+
+// UpdateGame is controller for updating a game with new data
+func (c *controller) UpdateGame(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+	input := service.GameInput{}
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&input)
+	if err != nil {
+		log.Printf("error decoding values: %v", err)
+		res := buildResponse(Game{}, errors.ErrInvalidInput, gameID)
+		serveResponse(w, res)
+		return
+	}
+
+	game, err := c.Svc.UpdateGame(gameID, &input)
+	res := buildResponse(internalToExternal(game), &errors.ErrorInternal{}, "")
 	res.Status = 201
 	serveResponse(w, res)
 }

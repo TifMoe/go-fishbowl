@@ -24,8 +24,10 @@ func NewGameService(r repository.Repository, rand RandomService, max int) GameSe
 // GameService is interface with methods to interact with redis db	
 type GameService interface {
     NewGame() (string, error)
-	SaveCard(gameID string, card *CardInput) (string, error)
 	GetGame(gameID string) (game *Game, err error)
+	UpdateGame(gameID string, input *GameInput) (*Game, error)
+
+	SaveCard(gameID string, card *CardInput) (string, error)
 	GetRandomCard(gameID string) (card *Card, err error)
 	MarkCardUsed(gameID, cardID string) error
 	SetCardsUnused(gameID string) (*Game, error)
@@ -57,6 +59,26 @@ func (s *service) NewGame() (string, error) {
 	}
 
 	return nameSpace, nil
+}
+
+// UpdateGame is service for updating a game
+func (s *service) UpdateGame(gameID string, input *GameInput) (*Game, error) {
+	var game *Game
+	existingGame, err := s.Repo.GetGame(gameID)
+	if existingGame == nil || err != nil{
+		log.Printf("attempted to save card to non-existent game %s: %v", gameID, err)
+		return game, fmt.Errorf("game %s does not exist", gameID)
+	}
+
+	existingGame.Started = input.Started
+	existingGame.Round = input.Round
+
+	err = s.Repo.UpdateGame(existingGame)
+	if err != nil {
+		log.Printf("error updating game %v: %v", gameID, err)
+		return game, fmt.Errorf("error updating game")
+	}
+	return gameDTOtoInternal(existingGame), nil
 }
 
 // SaveCard is controller for saving a new card to the existing game
