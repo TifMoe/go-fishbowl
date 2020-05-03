@@ -78,6 +78,7 @@ class DrawCard extends Component {
         <div className="draw-card">
             <button className="start" onClick={this.drawCard}>Start Turn</button>
             <button className="stop" onClick={this.endTurn}>End Turn</button>
+
             { this.state.showCard ?
                 <Card
                     card={this.state.card}

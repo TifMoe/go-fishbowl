@@ -56,6 +56,7 @@ class CardInput extends Component {
 
     render() {
         const { card } = this.state;
+        const { minCards } = 3;
         return (
             <div className="card-input">
                 <div className="explainer">
@@ -75,7 +76,7 @@ class CardInput extends Component {
                             <button type="submit">Drop it in!</button>
                     </form>
                 </div>
-                <StartGame startHandler={this.props.done} ready={this.state.count > 3}/>
+                <StartGame startHandler={this.props.done} ready={this.state.count >= minCards}/>
             </div>
         );
     }
