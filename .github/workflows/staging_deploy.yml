@@ -1,14 +1,14 @@
-name: Deploy
+name: Staging Deploy
 
 on:
   push:
     branches:
-      - master
+      - staging
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Staging Deploy
     steps:
       - uses: actions/checkout@master
 
@@ -22,7 +22,7 @@ jobs:
         run: docker push tifmoe/go-fishbowl:$(echo $GITHUB_SHA | head -c7)
 
       - name: Update game deployment file with new SHA
-        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|tifmoe/go-fishbowl:'${TAG}'|' $GITHUB_WORKSPACE/config/game.yml
+        run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|tifmoe/go-fishbowl:'${TAG}'|' $GITHUB_WORKSPACE/config/staging/game.yml
 
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
@@ -33,10 +33,10 @@ jobs:
         run: doctl kubernetes cluster kubeconfig save ${{ secrets.DIGITALOCEAN_K8S_CLUSTER }}
 
       - name: Deploy Redis to DigitalOcean Kubernetes
-        run: kubectl apply -f $GITHUB_WORKSPACE/config/redis.yml
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/staging/redis.yml
 
       - name: Deploy Game to DigitalOcean Kubernetes
-        run: kubectl apply -f $GITHUB_WORKSPACE/config/game.yml
+        run: kubectl apply -f $GITHUB_WORKSPACE/config/staging/game.yml
  
       - name: Verify deployment successful
-        run: kubectl rollout status deployment/game
+        run: kubectl rollout status deployment/game-staging

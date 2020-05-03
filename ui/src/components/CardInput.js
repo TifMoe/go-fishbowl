@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import './NamePicker.css';
+import './CardInput.css';
 
 class CardInput extends Component {
 
@@ -8,8 +8,25 @@ class CardInput extends Component {
         super();
         this.state = {
             card: '',
+            count: 0,
         };
         this.onSubmit = this.onSubmit.bind(this);
+        this.getCardCount = this.getCardCount.bind(this);
+    }
+
+    getCardCount() {
+        axios({
+            method: 'get',
+            url: '/v1/api/game/' + this.props.gameId,
+            timeout: 4000,    // 4 seconds timeout
+          })
+        .then((response) => {
+            console.log(response);
+            this.setState({count: response.data.result[0].unused_cards})
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
     }
 
     onChange = (e) => {
@@ -30,6 +47,7 @@ class CardInput extends Component {
         .then((result) => {
             console.log(result)
             this.setState({card: ""})
+            this.getCardCount();
         })
         .catch(function (error) {
             console.log(error);
@@ -39,17 +57,38 @@ class CardInput extends Component {
     render() {
         const { card } = this.state;
         return (
-            <form onSubmit={this.onSubmit}>
-                <input
-                type="text"
-                name="card"
-                value={card}
-                onChange={this.onChange}
-                />
-                <button type="submit">Drop in bowl!</button>
-            </form>
+            <div className="card-input">
+                <div className="explainer">
+                    <p> Invite players to submit nouns below to fill up your bowl! </p>
+                    <p className="small-text"> (max 50 cards total) </p>
+                </div>
+                <div className="card-form">
+                    <form onSubmit={this.onSubmit}>
+                            <input
+                                type="text"
+                                name="card"
+                                value={card}
+                                maxLength="30"
+                                minLength="2"
+                                onChange={this.onChange}
+                            />
+                            <button type="submit">Drop it in!</button>
+                    </form>
+                </div>
+                <StartGame startHandler={this.props.done} ready={this.state.count >= 3}/>
+            </div>
         );
     }
 }
+
+const StartGame = ({ startHandler, ready }) => (
+    <div>
+        <button
+            className="start-button"
+            onClick={startHandler}
+            disabled={!ready}
+        >Start Game</button>
+    </div>
+)
 
 export default CardInput; 

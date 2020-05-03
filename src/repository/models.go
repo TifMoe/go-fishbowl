@@ -4,6 +4,8 @@ package repository
 type Game struct {
 	ID     string 		`json:"id,omitempty"`
 	Cards   []Card		`json:"cards,omitempty"`
+	Started		bool 	`json:"started"`
+	Round		int		`json:"current_round"`
 }
 
 // Card is the DTO for card values

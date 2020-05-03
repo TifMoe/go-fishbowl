@@ -1,25 +1,62 @@
 .Game {
     text-align: center;
   }
-  
-  .Game-logo {
-    height: 40vmin;
-    pointer-events: none;
+
+.Game-page {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.Game-link {
+  color: #2EDDCB;
+}
+
+.row {
+  width: 90%;
+  margin-top: 50px;
+}
+
+.col-left {
+  float: left;
+  width: 50%;
+}
+
+.col-right {
+  margin-left: 50%;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media screen and (max-width: 600px) {
+  .col-left {
+    width: 100%;
   }
-  
-  .Game-header {
-    background-color: #282c34;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+  .col-right {
+    margin-left: 0;
   }
-  
-  .Game-link {
-    color: #2EDDCB;
-  }
-  
-  
+}
+
+.logo {
+  display: block;
+  max-height: 250px;
+}
+
+img {
+  height: 40vmin;
+  max-height: 230px;
+  pointer-events: none;
+}
+
+.title {
+  margin-top: 50px;
+}
