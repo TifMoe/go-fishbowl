@@ -43,3 +43,6 @@ Run the backend unit tests with:
 ```console
 $ make test
 ```
+
+### Contributing
+To contribute to this project please create a feature branch and open a PR against the **staging** branch.
