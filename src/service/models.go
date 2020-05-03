@@ -20,10 +20,19 @@ func (c CardInput) IsEmpty() bool {
     return c.Value == ""
 }
 
+// GameInput contains value for updates to game data
+type GameInput struct {
+	Started		bool 	`json:"started,omitempty"`
+	Round		int		`json:"current_round,omitempty"`
+}
+
 // Game is the internal struct for a game object
 type Game struct {
 	ID     string 		`json:"id,omitempty"`
 	Cards   []Card		`json:"cards,omitempty"`
+	Started		bool 	`json:"started"`
+	Round		int		`json:"current_round"`
+	UnusedCards	int		`json:"unused_cards"`
 }
 
 // Card is the internal struct for a card object
@@ -37,11 +46,17 @@ type Card struct {
 func gameDTOtoInternal(dto *repository.Game) *Game {
 	game := &Game{}
 	game.ID = dto.ID
+	game.Started = dto.Started
+	game.Round = dto.Round
 
+	unusedCount := 0
 	cardCount := len(dto.Cards)
 	cards := make([]Card, 0, cardCount)
 	if cardCount > 0 {
 		for _, card := range dto.Cards {
+			if !card.Used {
+				unusedCount = unusedCount + 1
+			}
 			c := Card{}
 			c.ID = card.ID
 			c.Value = card.Value
@@ -50,6 +65,7 @@ func gameDTOtoInternal(dto *repository.Game) *Game {
 		}
 	}
 	game.Cards = cards
+	game.UnusedCards = unusedCount
 
 	return game
 }

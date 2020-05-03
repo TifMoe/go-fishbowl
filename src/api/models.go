@@ -21,8 +21,11 @@ type Response struct {
 
 // Game contains data a specific game session
 type Game struct {
-	ID     string 	`json:"id"`
-	Cards   []Card	`json:"cards"`
+	ID     		string 	`json:"id"`
+	Cards   	[]Card	`json:"cards"`
+	Started		bool 	`json:"started"`
+	Round		int		`json:"current_round"`
+	UnusedCards	int		`json:"unused_cards"`
 }
 
 // Card contains data for a specific card
@@ -36,6 +39,9 @@ type Card struct {
 func internalToExternal(g *service.Game) Game {
 	game := Game{}
 	game.ID = g.ID
+	game.Started = g.Started
+	game.Round = g.Round
+	game.UnusedCards = g.UnusedCards
 
 	cardCount := len(g.Cards)
 	cards := make([]Card, 0, cardCount)

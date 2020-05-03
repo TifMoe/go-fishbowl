@@ -22,6 +22,7 @@ func NewRouter(c GameController) *mux.Router {
 	// Game resource
 	api.HandleFunc("/game", c.NewGame).Methods("POST")
 	api.HandleFunc("/game/{gameID}", c.GetGame).Methods("GET")
+	api.HandleFunc("/game/{gameID}", c.UpdateGame).Methods("PATCH")
 	api.HandleFunc("/game/{gameID}", c.ResetGame).Methods("DELETE")
 	api.HandleFunc("/game/{gameID}/start", c.StartRound).Methods("PATCH") // sets all cards as un-used
 	// Card resource
