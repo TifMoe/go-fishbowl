@@ -55,7 +55,7 @@ func gameDTOtoInternal(dto *repository.Game) *Game {
 	if cardCount > 0 {
 		for _, card := range dto.Cards {
 			if !card.Used {
-				unusedCount =+ 1
+				unusedCount = unusedCount + 1
 			}
 			c := Card{}
 			c.ID = card.ID
