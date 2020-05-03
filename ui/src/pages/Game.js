@@ -61,10 +61,9 @@ class GamePage extends Component {
       return (
         <div className="Game-page">
             <GameTagHeader gameId={gameId}/>
+            <h2 className="title">Fair warning... this fishbowl is still under development</h2>
 
             <div className="row">
-            <h2 className="title">Sorry, your Fishbowl is still under development</h2>
-
               <div className="col-left">
                 { this.state.ready ?
                   <DrawCard gameId={gameId}/> :
