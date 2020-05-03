@@ -1,9 +1,9 @@
 input[type=text] {
     width: 50%;
+    min-width: 100px;
     padding: 12px 20px;
     box-sizing: border-box;
     font-size: 16px;
-    margin-right: 10px;
 }
 
 input[type=text]:focus {
@@ -49,4 +49,9 @@ button:hover {
 .card-input {
     display: block;
     margin: auto 10%;
+}
+
+.card-form {
+    width: 80%;
+    margin: auto;
 }

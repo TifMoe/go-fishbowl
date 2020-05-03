@@ -12,9 +12,10 @@ const GamePage = ({ match }) => {
     return (
       <div className="Game-page">
           <GameTagHeader gameId={gameId}/>
-          <h2>Sorry, your Fishbowl is still under development</h2>
 
           <div className="row">
+          <h2 className="title">Sorry, your Fishbowl is still under development</h2>
+
             <div className="col-left">
               <div className="logo">
                 <img src={fishbowl} className="bowl" alt="logo" />

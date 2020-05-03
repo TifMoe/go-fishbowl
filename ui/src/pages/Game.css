@@ -19,6 +19,7 @@
 
 .row {
   width: 90%;
+  margin-top: 50px;
 }
 
 .col-left {
@@ -36,6 +37,15 @@
   clear: both;
 }
 
+@media screen and (max-width: 600px) {
+  .col-left {
+    width: 100%;
+  }
+  .col-right {
+    margin-left: 0;
+  }
+}
+
 .logo {
   display: block;
   max-height: 250px;
@@ -45,4 +55,8 @@ img {
   height: 40vmin;
   max-height: 230px;
   pointer-events: none;
+}
+
+.title {
+  margin-top: 50px;
 }
