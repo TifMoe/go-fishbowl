@@ -55,3 +55,8 @@ button:hover {
     width: 80%;
     margin: auto;
 }
+
+.start-button {
+    width: 80%;
+    max-width: 300px;
+}

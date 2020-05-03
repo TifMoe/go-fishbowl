@@ -75,9 +75,9 @@ class DrawCard extends Component {
         const team = this.state.teamA ? "Pink": "Blue";
         const color = this.state.teamA ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         return (
-        <div>
-            <button onClick={this.drawCard}>Start Turn</button>
-            <button onClick={this.endTurn}>End Turn</button>
+        <div className="draw-card">
+            <button className="start" onClick={this.drawCard}>Start Turn</button>
+            <button className="stop" onClick={this.endTurn}>End Turn</button>
             { this.state.showCard ?
                 <Card
                     card={this.state.card}

@@ -11,12 +11,19 @@
     text-align: center;
 }
 
+.actions {
+    width: 80%;
+    max-width: 350px;
+    margin: auto;
+}
+
 .card-value {
     padding: 10%;
 }
 
 button {
-    margin: 5%;
+    margin: 3%;
+    min-width: 80px;
 }
 
 .skip {

@@ -57,9 +57,19 @@ class CardInput extends Component {
                             <button type="submit">Drop it in!</button>
                     </form>
                 </div>
+                <StartGame startHandler={this.props.done}/>
             </div>
         );
     }
 }
+
+const StartGame = ({ startHandler }) => (
+    <div>
+        <button
+            className="start-button"
+            onClick={startHandler}
+        >Start Game</button>
+    </div>
+)
 
 export default CardInput; 
