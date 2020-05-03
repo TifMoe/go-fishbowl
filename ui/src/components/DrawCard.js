@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import NextRound from '../components/NextRound';
 
 import './DrawCard.css';
 
@@ -12,6 +13,7 @@ class DrawCard extends Component {
             card: "",
             showCard: false,
             teamA: true,
+            showNextRound: false,
         }
         this.drawCard = this.drawCard.bind(this);
         this.endTurn = this.endTurn.bind(this);
@@ -41,6 +43,8 @@ class DrawCard extends Component {
     }
 
     drawCard() {
+        this.setState({showNextRound: false})
+
         axios({
             method: 'get',
             url: `/v1/api/game/${this.props.gameId}/card/random`,
@@ -57,8 +61,9 @@ class DrawCard extends Component {
                     }
                 })
             } else {
-                // If no cards, end turn
+                // If no cards, end turn and show next round button
                 this.endTurn();
+                this.setState({showNextRound: true})
             }
         })
         .catch(function (error) {
@@ -84,6 +89,7 @@ class DrawCard extends Component {
                     color={color}
                 />
             }
+            <NextRound  gameId={this.props.gameId} ready={this.state.showNextRound}/>
         </div>
         );
     }
