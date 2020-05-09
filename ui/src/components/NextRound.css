@@ -1,9 +1,0 @@
-.next-round {
-    width: 80%; 
-    max-width: 350px;
-}
-
-button:disabled {
-    opacity: 40%;
-    pointer-events: none;
-}

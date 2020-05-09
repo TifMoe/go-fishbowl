@@ -4,6 +4,7 @@ import axios from 'axios';
 import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
 import DrawCard from '../components/DrawCard';
+import ScoreKeeper from '../components/ScoreKeeper';
 
 import fishbowl from '../assets/Fishbowl3.svg';
 import './Game.css';
@@ -15,12 +16,29 @@ class GamePage extends Component {
       super();
       this.state = {
           ready: false,
-          round: 0
+          round: 0,
+          team_1_turn: true,
+          team: "",
       }
+      this.saveState = this.saveState.bind(this);
       this.startGame = this.startGame.bind(this);
+      this.nextTurn = this.nextTurn.bind(this);
   }
 
-  componentWillMount() {
+  saveState(data) {
+    let team1 = data.teams.team_1.name
+    let team2 = data.teams.team_2.name
+    let currentTeam = data.team_1_turn ? team1 : team2
+
+    this.setState({
+      team_1_turn: data.team_1_turn,
+      ready: data.started,
+      round: data.current_round,
+      team: currentTeam
+    })
+  }
+
+  componentDidMount() {
     const { params: { gameId } } = this.props.match;
     axios({
         method: 'get',
@@ -28,8 +46,8 @@ class GamePage extends Component {
         timeout: 4000,    // 4 seconds timeout
       })
     .then((response) => {
-        console.log(response)
-        this.setState({ready: response.data.result[0].started})
+      console.log(response.data.result[0]);
+      this.saveState(response.data.result[0])
     })
     .catch(function (error) {
         console.log(error);
@@ -48,8 +66,26 @@ class GamePage extends Component {
         }
       })
     .then((response) => {
-        console.log(response)
-        this.setState({ ready: true });
+      this.saveState(response.data.result[0])
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+  }
+
+  nextTurn() {
+    const { params: { gameId } } = this.props.match;
+    axios({
+      method: 'patch',
+      url: `/v1/api/game/${gameId}`,
+      timeout: 4000,    // 4 seconds timeout
+      data: {
+          team_1_turn: !this.state.team_1_turn,
+          current_round: this.state.round,
+      }
+    })
+    .then((response) => {
+        this.saveState(response.data.result[0])
     })
     .catch(function (error) {
         console.log(error);
@@ -66,7 +102,14 @@ class GamePage extends Component {
             <div className="row">
               <div className="col-left">
                 { this.state.ready ?
-                  <DrawCard gameId={gameId}/> :
+                  <div>
+                    <ScoreKeeper round={this.state.round}/>
+                    <DrawCard
+                      gameId={gameId}
+                      nextRound={this.startGame}
+                      nextTurn={this.nextTurn}
+                    />
+                  </div>:
                   <CardInput gameId={gameId} done={this.startGame}/>
                 }
               </div>

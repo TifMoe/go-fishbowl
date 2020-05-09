@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import NextRound from '../components/NextRound';
 
 import './DrawCard.css';
 
@@ -11,18 +10,40 @@ class DrawCard extends Component {
         this.state = {
             id: "",
             card: "",
+            team_1_turn: false,
             showCard: false,
-            Team1: true,
             showNextRound: false,
         }
         this.drawCard = this.drawCard.bind(this);
-        this.endTurn = this.endTurn.bind(this);
         this.markDone = this.markDone.bind(this);
+        this.endTurn = this.endTurn.bind(this);
+        this.endRound = this.endRound.bind(this);
     }
 
+    componentDidMount() {
+        axios({
+            method: 'get',
+            url: `/v1/api/game/${this.props.gameId}`,
+            timeout: 4000,    // 4 seconds timeout
+          })
+        .then((response) => {
+          // On page load find current team in play
+          this.setState({ team_1_turn: response.data.result[0].team_1_turn })
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+      }
+
     endTurn() {
-        this.setState({showCard: false})
-        this.setState({Team1: !this.state.Team1})
+        this.setState({showCard: false});
+        this.setState({team_1_turn: !this.state.team_1_turn});
+        this.props.nextTurn();
+    }
+
+    endRound() {
+        this.props.nextRound();
+        this.setState({showNextRound: false})
     }
 
     markDone() {
@@ -72,8 +93,8 @@ class DrawCard extends Component {
     }
 
     render() {
-        const team = this.state.Team1 ? "Pink": "Blue";
-        const color = this.state.Team1 ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const team = this.state.team_1_turn ? "Pink": "Blue";
+        const color = this.state.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         return (
         <div className="draw-card">
             <button className="start" onClick={this.drawCard}>Start Turn</button>
@@ -90,7 +111,9 @@ class DrawCard extends Component {
                     color={color}
                 />
             }
-            <NextRound  gameId={this.props.gameId} active={this.state.showNextRound}/>
+            <NextRound
+                active={this.state.showNextRound}
+                nextHandler={this.endRound}/>
         </div>
         );
     }
@@ -113,6 +136,16 @@ const PlaceHolder = ({ team, color }) => (
         <div className="card-value">
             <p>{team} Team's Turn!</p>
         </div>
+    </div>
+)
+
+const NextRound = ({ active, nextHandler }) => (
+    <div>
+        <button
+            onClick={nextHandler}
+            className="next-round"
+            disabled={!active}
+        >Next Round</button>
     </div>
 )
 
