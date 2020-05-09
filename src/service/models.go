@@ -25,17 +25,18 @@ type GameInput struct {
 	Started			*bool 	`json:"started,omitempty"`
 	Round			*int	`json:"current_round,omitempty" validate:"max=4"`
 	Team1Turn		*bool	`json:"team_1_turn,omitempty"`
+
 }
 
-// TeamInput contains value for a team name
+// TeamInput contains value for team names
 type TeamInput struct {
-	Name			string	`json:"name" validate:"required,min=2,max=30"`
-	ID				string	`json:"id,omitempty"`
+	Team1			*string	`json:"team_1,omitempty" validate:"required,min=2,max=30"`
+	Team2			*string	`json:"team_2,omitempty" validate:"required,min=2,max=30"`
 }
 
 // IsEmpty will return true if Error struct does not contain something other than default
 func (t TeamInput) IsEmpty() bool {
-    return t.Name == ""
+    return &t.Team1 == nil || &t.Team2 == nil
 }
 
 // Game is the internal struct for a game object

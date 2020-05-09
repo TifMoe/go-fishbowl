@@ -48,7 +48,9 @@ func TestNewGameService(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			svc := NewGameService(tc.mockRepo, tc.mockRand, 3)
 
-			gameID, err := svc.NewGame()
+			team1, team2 := "boo", "hoo"
+			input := &TeamInput{Team1: &team1, Team2: &team2}
+			gameID, err := svc.NewGame(input)
 			assert.Equal(t, tc.expectedResponse, gameID)
 			assert.Equal(t, tc.expectedError, err)
 		})
@@ -324,7 +326,7 @@ type mockRepo struct {
 	Case string
 }
 
-func (s *mockRepo) SaveNewGame(gameID string) error {
+func (s *mockRepo) SaveNewGame(gameID, team1, team2 string) error {
 	switch s.Case {
 	case "error":
 		return fmt.Errorf("Error saving new game")

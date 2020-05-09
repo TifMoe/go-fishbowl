@@ -21,7 +21,7 @@ func NewRedisConnection(c *redis.Client) *conn {
 
 // Repository is interface with methods to interact with redis db	
 type Repository interface {
-    SaveNewGame(gameID string) error
+    SaveNewGame(gameID, team1, team2 string) error
 	UpdateGame(game *Game) error
 	GetGame(gameID string) (game *Game, err error)
 }
@@ -32,7 +32,7 @@ type conn struct {
 }
 
 // SaveNewGame is used to initialize a new game
-func (c conn) SaveNewGame(gameID string) error {
+func (c conn) SaveNewGame(gameID, team1, team2 string) error {
 	exists, _ := c.GetGame(gameID)
 
 	if exists != nil {
@@ -40,7 +40,18 @@ func (c conn) SaveNewGame(gameID string) error {
 		return err
 	}
 
-	game, err := json.Marshal(Game{ID: gameID})
+	game, err := json.Marshal(Game{
+		ID: gameID,
+		Teams: Teams{
+			Team1: Team{
+				Name: team1,
+			},
+			Team2: Team{
+				Name: team2,
+			},
+		},
+	})
+
 	if err != nil {
 		fmt.Printf("Error marshalling new game %s: %v\n", gameID, err)
 		return err
