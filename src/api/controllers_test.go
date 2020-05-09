@@ -457,7 +457,7 @@ func (s *mockService) MarkCardUsed(gameID, cardID string) error {
 	return nil
 }
 
-func (s *mockService) SetCardsUnused(gameID string) (*service.Game, error) {
+func (s *mockService) ResetGame(gameID string) (*service.Game, error) {
 	return &service.Game{}, nil
 }
 
@@ -468,4 +468,8 @@ func (s *mockService) DeleteCards(gameID string) error {
 func (s *mockService) UpdateGame(gameID string, input *service.GameInput) (*service.Game, error) {
 	var game *service.Game
 	return game, nil
+}
+
+func (s *mockService) UpdateTeam(gameID string, input *service.TeamInput) error {
+	return nil
 }

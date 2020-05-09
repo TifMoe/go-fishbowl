@@ -12,7 +12,7 @@ class DrawCard extends Component {
             id: "",
             card: "",
             showCard: false,
-            teamA: true,
+            Team1: true,
             showNextRound: false,
         }
         this.drawCard = this.drawCard.bind(this);
@@ -22,7 +22,7 @@ class DrawCard extends Component {
 
     endTurn() {
         this.setState({showCard: false})
-        this.setState({teamA: !this.state.teamA})
+        this.setState({Team1: !this.state.Team1})
     }
 
     markDone() {
@@ -72,8 +72,8 @@ class DrawCard extends Component {
     }
 
     render() {
-        const team = this.state.teamA ? "Pink": "Blue";
-        const color = this.state.teamA ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const team = this.state.Team1 ? "Pink": "Blue";
+        const color = this.state.Team1 ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         return (
         <div className="draw-card">
             <button className="start" onClick={this.drawCard}>Start Turn</button>

@@ -39,8 +39,8 @@ class GamePage extends Component {
   startGame() {
     const { params: { gameId } } = this.props.match;
     axios({
-        method: 'patch',
-        url: `/v1/api/game/${gameId}`,
+        method: 'put',
+        url: `/v1/api/game/${gameId}/start`,
         timeout: 4000,    // 4 seconds timeout
         data: {
             started: true,

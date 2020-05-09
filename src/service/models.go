@@ -22,24 +22,53 @@ func (c CardInput) IsEmpty() bool {
 
 // GameInput contains value for updates to game data
 type GameInput struct {
-	Started		bool 	`json:"started,omitempty"`
-	Round		int		`json:"current_round,omitempty"`
+	Started			*bool 	`json:"started,omitempty"`
+	Round			*int	`json:"current_round,omitempty" validate:"max=4"`
+	Team1Turn		*bool	`json:"team_1_turn,omitempty"`
+}
+
+// TeamInput contains value for a team name
+type TeamInput struct {
+	Name			string	`json:"name" validate:"required,min=2,max=30"`
+	ID				string	`json:"id,omitempty"`
+}
+
+// IsEmpty will return true if Error struct does not contain something other than default
+func (t TeamInput) IsEmpty() bool {
+    return t.Name == ""
 }
 
 // Game is the internal struct for a game object
 type Game struct {
 	ID     string 		`json:"id,omitempty"`
 	Cards   []Card		`json:"cards,omitempty"`
-	Started		bool 	`json:"started"`
-	Round		int		`json:"current_round"`
-	UnusedCards	int		`json:"unused_cards"`
+	Started		bool 	`json:"started,omitempty"`
+	Round		int		`json:"current_round,omitempty"`
+	Team1Turn	bool	`json:"team_1_turn,omitempty"`
+	UnusedCards	int		`json:"unused_cards,omitempty"`
+	Teams		Teams 	`json:"teams,omitempty"`
 }
 
 // Card is the internal struct for a card object
 type Card struct {
-	ID 		string		`json:"id,omitempty"`
-	Value   string     `json:"value,omitempty"`
-	Used 	bool       `json:"used"`
+	ID 		string	`json:"id,omitempty"`
+	Value   string  `json:"value,omitempty"`
+	Used 	bool    `json:"used,omitempty"`
+}
+
+// Teams is nested struct containing details for each of the two teams
+type Teams struct {
+	Team1 	Team `json:"team_1,omitempty"`
+	Team2 	Team `json:"team_2,omitempty"`
+}
+
+// Team contains data for a specific
+type Team struct {
+	Name		string		`json:"name,omitempty"`
+	Round1   	[]string	`json:"round_1,omitempty"`
+	Round2   	[]string	`json:"round_2,omitempty"`
+	Round3   	[]string	`json:"round_3,omitempty"`
+	Round4   	[]string	`json:"round_4,omitempty"`
 }
 
 // TODO: This is gross, optimize later
@@ -48,6 +77,11 @@ func gameDTOtoInternal(dto *repository.Game) *Game {
 	game.ID = dto.ID
 	game.Started = dto.Started
 	game.Round = dto.Round
+	game.Team1Turn = dto.Team1Turn
+
+	// update teams
+	game.Teams.Team1 = dtoToInternalTeam(dto.Teams.Team1)
+	game.Teams.Team2 = dtoToInternalTeam(dto.Teams.Team2)
 
 	unusedCount := 0
 	cardCount := len(dto.Cards)
@@ -68,4 +102,15 @@ func gameDTOtoInternal(dto *repository.Game) *Game {
 	game.UnusedCards = unusedCount
 
 	return game
+}
+
+
+func dtoToInternalTeam(dto repository.Team) Team {
+	t := Team{}
+	t.Name = dto.Name
+	t.Round1 = dto.Round1
+	t.Round2 = dto.Round2
+	t.Round3 = dto.Round3
+	t.Round4 = dto.Round4
+	return t
 }

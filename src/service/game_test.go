@@ -262,7 +262,7 @@ func TestMarkCardUsedService(t *testing.T) {
     }
 }
 
-func TestSetCardsUnusedService(t *testing.T) {
+func TestResetGameService(t *testing.T) {
 
 	type test struct {
 		name 				string
@@ -284,6 +284,9 @@ func TestSetCardsUnusedService(t *testing.T) {
 						Used: false,
 					},
 				},
+				Started: true,
+				Round: 1,
+				Team1Turn: true,
 				UnusedCards: 1,
 			},
 			expectedError: nil,
@@ -302,7 +305,7 @@ func TestSetCardsUnusedService(t *testing.T) {
 			mockRand := newMockRand(tc.gameID)
 			svc := NewGameService(mockRepo, mockRand, 10)
 
-			game, err := svc.SetCardsUnused(tc.gameID)
+			game, err := svc.ResetGame(tc.gameID)
 			assert.Equal(t, tc.expectGame, game)
 			assert.Equal(t, tc.expectedError, err)
 		})
