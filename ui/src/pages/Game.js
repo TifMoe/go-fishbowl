@@ -61,7 +61,7 @@ class GamePage extends Component {
       return (
         <div className="Game-page">
             <GameTagHeader gameId={gameId}/>
-            <h2 className="title">This fishbowl is still under development</h2>
+            <h2 className="title">This fishbowl is under development</h2>
 
             <div className="row">
               <div className="col-left">
