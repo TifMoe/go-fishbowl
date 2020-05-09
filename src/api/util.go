@@ -1,20 +1,22 @@
 package api
 
 import (
-	"os"
+	"encoding/json"
+	"fmt"
+	"github.com/tifmoe/go-fishbowl/src/errors"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
-	"encoding/json"
-
-	"github.com/tifmoe/go-fishbowl/src/errors"
 )
 
 // GetEnv is utility function to get default environment variable if not defined
 func GetEnv(key, fallback string) string {
+	fmt.Println("attempting to lookup", key)
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}
+	fmt.Println("Didn't find it. Using: ", fallback)
 	return fallback
 }
 
@@ -54,7 +56,7 @@ func buildResponse(game Game, er *errors.ErrorInternal, message string) *apiResp
 
 	return &apiResponse{
 		Status: status,
-		Data: res,
+		Data:   res,
 	}
 }
 
@@ -65,18 +67,18 @@ func buildResult(g Game, m string) *Response {
 	}
 
 	return &Response{
-		Result: game,
+		Result:  game,
 		Success: true,
-		Error: []errors.Error{},
+		Error:   []errors.Error{},
 		Message: m,
 	}
 }
 
 func buildError(e *errors.Error) *Response {
 	return &Response{
-		Result: []Game{},
+		Result:  []Game{},
 		Success: false,
-		Error: []errors.Error{*e},
+		Error:   []errors.Error{*e},
 		Message: "",
 	}
 }
