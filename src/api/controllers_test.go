@@ -331,7 +331,7 @@ func TestGetRandomCardController(t *testing.T) {
 			expectedResponse: Response{
 				Result: []Game{
 					Game{
-						ID: "game-name",
+						ID: "single",
 						Cards: []Card{
 							Card{
 								ID: "random-card",
@@ -353,7 +353,7 @@ func TestGetRandomCardController(t *testing.T) {
 			expectedResponse: Response{
 				Result: []Game{
 					Game{
-						ID: "game-name",
+						ID: "empty",
 						Cards: []Card{},
 					},
 				},
