@@ -34,8 +34,8 @@ class NewGame extends Component {
             url: 'v1/api/game',
             timeout: 4000,    // 4 seconds timeout
             data: {
-                team_1: this.state.team1,
-                team_2: this.state.team2,
+                team_1: capitalize(this.state.team1),
+                team_2: capitalize(this.state.team2),
             }
           })
         .then((response) => {
@@ -82,6 +82,16 @@ class NewGame extends Component {
         </div>
         );
     }
+}
+
+function capitalize(str) {
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(function(word) {
+            return word[0].toUpperCase() + word.substr(1);
+        })
+        .join(' ');
 }
 
 export default NewGame; 

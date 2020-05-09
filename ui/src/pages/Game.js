@@ -4,7 +4,7 @@ import axios from 'axios';
 import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
 import DrawCard from '../components/DrawCard';
-import ScoreKeeper from '../components/ScoreKeeper';
+import GameStats from '../components/GameStats';
 
 import fishbowl from '../assets/Fishbowl3.svg';
 import './Game.css';
@@ -23,6 +23,7 @@ class GamePage extends Component {
       this.saveState = this.saveState.bind(this);
       this.startGame = this.startGame.bind(this);
       this.nextTurn = this.nextTurn.bind(this);
+      this.componentSwitch = this.componentSwitch.bind(this);
   }
 
   saveState(data) {
@@ -46,7 +47,6 @@ class GamePage extends Component {
         timeout: 4000,    // 4 seconds timeout
       })
     .then((response) => {
-      console.log(response.data.result[0]);
       this.saveState(response.data.result[0])
     })
     .catch(function (error) {
@@ -92,8 +92,33 @@ class GamePage extends Component {
     });
   }
 
+  componentSwitch(gameId) {
+    switch (this.state.round) {
+      // Initial game setup
+      case 0:
+        return <CardInput gameId={gameId} done={this.startGame}/>
+      // End game play after 4 rounds
+      case 5:
+        return <GameStats gameId={gameId}/>
+      // Default game play for rounds 1-4
+      default:
+        return (
+          <div>
+            <RoundTracker round={this.state.round}/>
+            <DrawCard
+              gameId={gameId}
+              nextRound={this.startGame}
+              nextTurn={this.nextTurn}
+            />
+          </div>
+        )
+    }
+  }
+
   render() {
       const { params: { gameId } } = this.props.match;
+      const gameComponent = this.componentSwitch(gameId)
+
       return (
         <div className="Game-page">
             <GameTagHeader gameId={gameId}/>
@@ -101,17 +126,7 @@ class GamePage extends Component {
 
             <div className="row">
               <div className="col-left">
-                { this.state.ready ?
-                  <div>
-                    <ScoreKeeper round={this.state.round}/>
-                    <DrawCard
-                      gameId={gameId}
-                      nextRound={this.startGame}
-                      nextTurn={this.nextTurn}
-                    />
-                  </div>:
-                  <CardInput gameId={gameId} done={this.startGame}/>
-                }
+                {gameComponent}
               </div>
 
               <div className="col-right">
@@ -125,5 +140,12 @@ class GamePage extends Component {
       );
     }
   }
+
+
+const RoundTracker = ({ round }) => (
+  <div>
+    <p>Current Round: {round}</p>
+  </div>
+)
   
   export default GamePage;
