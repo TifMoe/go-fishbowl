@@ -173,11 +173,16 @@ func (c *controller) GetRandomCard(w http.ResponseWriter, r *http.Request) {
 		cards = []Card{internalToExternalCard(internalCard)}
 	}
 
-	// TODO: Only return card value in API response, not entire game (currently missing values)
-	game := Game{
-		ID: gameID,
-		Cards: cards,
+	gameInternal, err := c.Svc.GetGame(gameID)
+	if err != nil {
+		log.Printf("error fetching cards: %v", err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
 	}
+
+	game := internalToExternal(gameInternal)
+	game.Cards = cards
 
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
