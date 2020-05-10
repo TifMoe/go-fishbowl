@@ -58,6 +58,7 @@ class NewGame extends Component {
             <div className="card-form">
                 <form onSubmit={this.onSubmit}>
                     <input
+                        className="team-input pink"
                         type="text"
                         name="team1"
                         placeholder="Team 1 Name"
@@ -67,6 +68,7 @@ class NewGame extends Component {
                         onChange={this.onChange}
                     />
                     <input
+                        className="team-input blue"
                         type="text"
                         name="team2"
                         placeholder="Team 2 Name"

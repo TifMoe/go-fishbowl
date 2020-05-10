@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Timer from './Timer';
 import axios from 'axios';
 
 import './DrawCard.css';
@@ -10,7 +11,6 @@ class DrawCard extends Component {
         this.state = {
             id: "",
             card: "",
-            team_1_turn: false,
             team1: "Team 1",
             team2: "Team 2",
             showCard: false,
@@ -32,7 +32,6 @@ class DrawCard extends Component {
         .then((response) => {
           // On page load find current team in play
           this.setState({
-              team_1_turn: response.data.result[0].team_1_turn,
               team1: response.data.result[0].teams.team_1.name,
               team2: response.data.result[0].teams.team_2.name
             })
@@ -44,13 +43,12 @@ class DrawCard extends Component {
 
     endTurn() {
         this.setState({showCard: false});
-        this.setState({team_1_turn: !this.state.team_1_turn});
         this.props.nextTurn();
     }
 
     endRound() {
-        this.props.nextRound();
         this.setState({showNextRound: false})
+        this.props.nextRound();
     }
 
     markDone() {
@@ -106,24 +104,33 @@ class DrawCard extends Component {
     }
 
     render() {
-        const team = this.state.team_1_turn ? this.state.team1 : this.state.team2;
-        const color = this.state.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const team = this.props.team_1_turn ? this.state.team1 : this.state.team2;
+        const color = this.props.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         return (
         <div className="draw-card">
-            <button className="start" onClick={this.drawCard}>Start Turn</button>
-            <button className="stop" onClick={this.endTurn}>End Turn</button>
 
             { this.state.showCard ?
-                <Card
-                    card={this.state.card}
-                    showSkip={this.state.showSkip}
-                    doneHandler={this.markDone}
-                    drawHandler={this.drawCard}
-                /> :
-                <PlaceHolder
-                    team={team}
-                    color={color}
-                />
+                <div>
+                    <div className="actions">
+                        <Timer timesUpHandler={this.endTurn}/>
+                    </div>
+                    <Card
+                        card={this.state.card}
+                        showSkip={this.state.showSkip}
+                        doneHandler={this.markDone}
+                        drawHandler={this.drawCard}
+                    />
+                </div>:
+                <div>
+                    <div className="actions">
+                        <button onClick={this.drawCard}>Start Turn</button>
+                        <button onClick={this.endTurn}>End Turn</button>
+                    </div>
+                    <PlaceHolder
+                        team={team}
+                        color={color}
+                    />
+                </div>
             }
             <NextRound
                 active={this.state.showNextRound}
