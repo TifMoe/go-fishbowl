@@ -30,8 +30,6 @@ type GameController interface {
 	GetRandomCard(w http.ResponseWriter, r *http.Request)
 	MarkCardUsed(w http.ResponseWriter, r *http.Request)
 	StartRound(w http.ResponseWriter, r *http.Request)
-
-	UpdateTeam(w http.ResponseWriter, r *http.Request)
 }
 
 // Controller holds service for Game Handlers
@@ -41,9 +39,19 @@ type controller struct {
 
 // NewGame is controller for generating new game namespace and instantiating in the database
 func (c *controller) NewGame(w http.ResponseWriter, r *http.Request) {
+	input := service.TeamInput{}
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&input)
+	if err != nil {
+		log.Printf("error decoding values: %v", err)
+		res := buildResponse(Game{}, errors.ErrInvalidInput, "")
+		serveResponse(w, res)
+		return
+	}
 
 	// Instantiate new game namespace
-	nameSpace, err := c.Svc.NewGame()
+	nameSpace, err := c.Svc.NewGame(&input)
 	if err != nil {
 		log.Printf("error generating new namespace: %v", err)
 
@@ -165,11 +173,16 @@ func (c *controller) GetRandomCard(w http.ResponseWriter, r *http.Request) {
 		cards = []Card{internalToExternalCard(internalCard)}
 	}
 
-	// TODO: Only return card value in API response, not entire game (currently missing values)
-	game := Game{
-		ID: gameID,
-		Cards: cards,
+	gameInternal, err := c.Svc.GetGame(gameID)
+	if err != nil {
+		log.Printf("error fetching cards: %v", err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
 	}
+
+	game := internalToExternal(gameInternal)
+	game.Cards = cards
 
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
@@ -227,34 +240,5 @@ func (c *controller) ResetGame(w http.ResponseWriter, r *http.Request) {
 	// TODO: Return actual game
 	game := Game{}
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
-	serveResponse(w, res)
-}
-
-// UpdateTeam is controller for updating a team with new data
-func (c *controller) UpdateTeam(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	gameID := params["gameID"]
-	teamID := params["teamID"]
-	team := service.TeamInput{}
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&team)
-	if err != nil || team.IsEmpty() {
-		log.Printf("error decoding values: %v", err)
-		res := buildResponse(Game{}, errors.ErrInvalidInput, gameID)
-		serveResponse(w, res)
-		return
-	}
-
-	team.ID = teamID
-	err = c.Svc.UpdateTeam(gameID, &team)
-	if err != nil {
-		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
-		serveResponse(w, res)
-		return
-	}
-
-	// TODO: Find idiomatic way of returning only Team resource in response instead of empty array
-	res := buildResponse(Game{}, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
 }

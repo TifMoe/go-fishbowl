@@ -20,7 +20,8 @@ func TestNewGameController(t *testing.T) {
 
 	type test struct {
 		name 				string
-        mockService 		*mockService
+		mockService 		*mockService
+		postData 			json.RawMessage
 		expectedStatus		int
         expectedResponse  	Response
 	}
@@ -29,6 +30,7 @@ func TestNewGameController(t *testing.T) {
         {
 			name: "request to create new game succeeds",
 			mockService: newMockService("successful-game"), 
+			postData: json.RawMessage(`{"team1": "boo", "team2": "hoo"}`),
 			expectedStatus: 201,
 			expectedResponse: Response{
 				Result: []Game{
@@ -42,8 +44,26 @@ func TestNewGameController(t *testing.T) {
 			},
 		},
 		{
-			name: "request to create new game returns error",
+			name: "request to create new game fails on internal service layer error",
 			mockService: newMockService("error"), 
+			postData: json.RawMessage(`{"team1": "boo", "team2": "hoo"}`),
+			expectedStatus: 500, 
+			expectedResponse: Response{
+				Result: []Game{},
+				Success: false,
+				Error: []errors.Error{
+					errors.Error{
+						Code: 1000,
+						Message: "Failed to instantiate new game session, please try again later",
+					},
+				},
+				Message: "",
+			},
+		},
+		{
+			name: "request to create new game fails when team names are not provided",
+			mockService: newMockService("error"), 
+			postData: json.RawMessage(`{"invalid": "misguided input"}`),
 			expectedStatus: 500, 
 			expectedResponse: Response{
 				Result: []Game{},
@@ -65,7 +85,7 @@ func TestNewGameController(t *testing.T) {
 				response = Response{}
 			)
 
-			req, err := http.NewRequest("POST", "/v1/api/game", nil)
+			req, err := http.NewRequest("POST", "/v1/api/game", bytes.NewReader(tc.postData))
 			assert.Nil(t, err)
 
 			rr := httptest.NewRecorder()
@@ -311,7 +331,7 @@ func TestGetRandomCardController(t *testing.T) {
 			expectedResponse: Response{
 				Result: []Game{
 					Game{
-						ID: "game-name",
+						ID: "single",
 						Cards: []Card{
 							Card{
 								ID: "random-card",
@@ -333,7 +353,7 @@ func TestGetRandomCardController(t *testing.T) {
 			expectedResponse: Response{
 				Result: []Game{
 					Game{
-						ID: "game-name",
+						ID: "empty",
 						Cards: []Card{},
 					},
 				},
@@ -393,7 +413,7 @@ type mockService struct {
 	Case string
 }
 
-func (s *mockService) NewGame() (string, error) {
+func (s *mockService) NewGame(input *service.TeamInput) (string, error) {
 	switch s.Case {
 	case "error":
 		return "", fmt.Errorf("Error generating a new game")
@@ -470,6 +490,3 @@ func (s *mockService) UpdateGame(gameID string, input *service.GameInput) (*serv
 	return game, nil
 }
 
-func (s *mockService) UpdateTeam(gameID string, input *service.TeamInput) error {
-	return nil
-}

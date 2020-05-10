@@ -31,9 +31,6 @@ func NewRouter(c GameController) *mux.Router {
 	api.HandleFunc("/game/{gameID}/card/{cardID}/used", c.MarkCardUsed).Methods("PATCH") // marks single card as used
 	api.HandleFunc("/game/{gameID}/card/random", c.GetRandomCard).Methods("GET") // returns a random un-used card
 
-	// Team resource
-	api.HandleFunc("/game/{gameID}/team/{teamID}", c.UpdateTeam).Methods("PUT")
-
 	// Serve Frontend routes
 	// For requests to dynamically generated game pages, serve index.html
 	r.PathPrefix("/game/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -23,7 +23,7 @@ func NewGameService(r repository.Repository, rand RandomService, max int) GameSe
 
 // GameService is interface with methods to interact with redis db	
 type GameService interface {
-    NewGame() (string, error)
+    NewGame(input *TeamInput) (string, error)
 	GetGame(gameID string) (game *Game, err error)
 	UpdateGame(gameID string, input *GameInput) (*Game, error)
 
@@ -32,8 +32,6 @@ type GameService interface {
 	MarkCardUsed(gameID, cardID string) error
 	ResetGame(gameID string) (*Game, error)
 	DeleteCards(gameID string) error
-
-	UpdateTeam(gameID string, input *TeamInput) error
 }
 
 type service struct {
@@ -44,7 +42,13 @@ type service struct {
 }
 
 // NewGame is service for generating new game namespace and instantiating in the database
-func (s *service) NewGame() (string, error) {
+func (s *service) NewGame(input *TeamInput) (string, error) {
+	// Terminate the request if the input is not valid
+	if err := s.Validate.Struct(input); err != nil {
+		log.Printf("error validating values from game input %v: %v", input, err)
+		return "", fmt.Errorf("invalid game input")
+	}
+
 	// Generate new random word pair for namespace
 	nameSpace, err := s.Rand.GetRandomWords()
 	if err != nil {
@@ -53,7 +57,7 @@ func (s *service) NewGame() (string, error) {
 	}
 
 	// Attempt to save to database
-	err = s.Repo.SaveNewGame(nameSpace)
+	err = s.Repo.SaveNewGame(nameSpace, *input.Team1, *input.Team2)
 	if err != nil {
 		// TODO: if name is in play, automaticallly generate new one
 		log.Printf("error generating new game: %v", err)
@@ -246,38 +250,4 @@ func (s *service) DeleteCards(gameID string) error {
         return err
 	}
     return nil
-}
-
-// UpdateTeam is service to update a given team resource
-func (s *service) UpdateTeam(gameID string, input *TeamInput) error {
-
-	// Terminate the request if the input is not valid
-	if err := s.Validate.Struct(input); err != nil {
-		log.Printf("error validating values from team input %v: %v", input, err)
-		return fmt.Errorf("invalid team input")
-	}
-
-	gameDTO, err := s.Repo.GetGame(gameID)
-    if err != nil {
-        log.Printf("error fetching game %v: %v", gameID, err)
-        return err
-	}
-
-	switch input.ID {
-	case "1":
-		gameDTO.Teams.Team1.Name = input.Name
-	case "2":
-		gameDTO.Teams.Team2.Name = input.Name
-	default:
-		err = fmt.Errorf("invalid team name, expected 1 or 2 but got: %v", input.Name)
-		return err
-	}
-
-	err = s.Repo.UpdateGame(gameDTO)
-    if err != nil {
-        log.Printf("error updating game %v: %v", gameID, err)
-        return err
-	}
-
-	return nil
 }
