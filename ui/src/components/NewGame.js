@@ -19,7 +19,7 @@ class NewGame extends Component {
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
-        if ( this.state.team1.length > 2 && this.state.team2.length > 2) {
+        if ( this.state.team1.length > 1 && this.state.team2.length > 1) {
             this.setState({ ok: true });
         }
     }
@@ -32,7 +32,7 @@ class NewGame extends Component {
     onSubmit(e) {
         e.preventDefault();
         // Save team names and fetch new game namespace
-        if (this.state.team1 != "" && this.state.team2 != "") {
+        if (this.state.team1 !== "" && this.state.team2 !== "") {
             axios({
                 method: 'post',
                 url: 'v1/api/game',

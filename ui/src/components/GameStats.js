@@ -61,7 +61,7 @@ function GetWinner(team1, team2) {
     let headline = "Congratulations!!"
     let winner = (team1pts > team2pts ? team1.name : team2.name) + " Wins!!"
 
-    if (team1pts == team2pts) {
+    if (team1pts === team2pts) {
         headline = "Congrats all around!! "
         winner = `${team1.name} and ${team2.name} have tied!!`
     }

@@ -4,7 +4,7 @@ import Timer from './Timer';
 import axios from 'axios';
 
 import './DrawCard.css';
-import rules from './../assets/roundRules.json';
+import rules from './../gameRules.json';
 
 class DrawCard extends Component {
 
@@ -23,7 +23,6 @@ class DrawCard extends Component {
         this.markDone = this.markDone.bind(this);
         this.endTurn = this.endTurn.bind(this);
         this.endRound = this.endRound.bind(this);
-        this.nextRoundTransition = this.nextRoundTransition.bind(this);
     }
 
     componentDidMount() {
@@ -83,7 +82,7 @@ class DrawCard extends Component {
             const cardCount = response.data.result[0].unused_cards
 
             if (cards && cards.length) {
-                if (cardCount == 1) {
+                if (cardCount === 1) {
                     this.setState({ showSkip: false })
                 }
 
@@ -105,34 +104,11 @@ class DrawCard extends Component {
         });
     }
 
-    nextRoundTransition() {
+    render() {
         const team = this.props.gameState.team_1_turn ? this.state.team1 : this.state.team2;
         const color = this.props.gameState.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         const round = this.props.gameState.round
 
-        if (this.state.showNextRound) {
-            if (round >= 4) {
-                // End game play after 4 rounds
-                return <p>Game over</p>
-            }
-            // Show next round rules in transition to next round
-            return (
-                <NextRoundRules
-                    round={round+1}
-                    rules={rules.rounds}
-                />
-            )
-        }
-         // Default view showing active team for inactive players
-         return (
-            <TeamUp
-                team={team}
-                color={color}
-            />
-         )
-    }
-
-    render() {
         return (
         <div className="draw-card">
 
@@ -152,11 +128,24 @@ class DrawCard extends Component {
 
                 // Card values hidden
                 <div>
-                    <div className="actions">
-                        <button onClick={this.drawCard}>Start Turn</button>
-                        <button onClick={this.endTurn}>End Turn</button>
-                    </div>
-                    {this.nextRoundTransition()}
+
+                    { this.state.showNextRound ?
+                        <NextRoundRules
+                            round={round+1}
+                            rules={rules.rounds}
+                        /> :
+                        // Default view showing which team is active
+                        <div>
+                             <div className="actions">
+                                <button onClick={this.drawCard}>Start Turn</button>
+                                <button onClick={this.endTurn}>End Turn</button>
+                            </div>
+                            <TeamUp
+                                team={team}
+                                color={color}
+                            />
+                        </div>
+                    }
                 </div>
             }
             <NextRound
@@ -180,11 +169,16 @@ const Card = ({ card, showSkip, doneHandler, drawHandler }) => (
 )
 
 const NextRoundRules = ({ round, rules }) => (
-    <div className="card" style={{backgroundColor: "#5F6167", color: "white"}}>
-        <div className="card-value">
-            <h3>Round {round}: {rules[round-1].name}</h3>
-            <p>{rules[round-1].rules}</p>
-        </div>
+    <div>
+        { round <= 4 ?
+            <div className="card" style={{backgroundColor: "#5F6167", color: "white"}}>  
+                    <div className="card-value">
+                        <h3>Round {round}: {rules[round-1].name}</h3>
+                        <p>{rules[round-1].rules}</p>
+                    </div>
+            </div> :
+            <div></div>
+        }
     </div>
 )
 
