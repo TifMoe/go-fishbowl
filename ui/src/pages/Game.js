@@ -7,6 +7,7 @@ import DrawCard from '../components/DrawCard';
 import GameStats from '../components/GameStats';
 
 import fishbowl from '../assets/Fishbowl3.svg';
+import rules from './../gameRules.json';
 import './Game.css';
 
 
@@ -18,6 +19,7 @@ class GamePage extends Component {
           ready: false,
           round: 0,
           team_1_turn: true,
+          unused_cards: 0,
           team: "",
       }
       this.saveState = this.saveState.bind(this);
@@ -35,6 +37,7 @@ class GamePage extends Component {
       team_1_turn: data.team_1_turn,
       ready: data.started,
       round: data.current_round,
+      unused_cards: data.unused_cards,
       team: currentTeam
     })
   }
@@ -97,17 +100,19 @@ class GamePage extends Component {
       // Initial game setup
       case 0:
         return <CardInput gameId={gameId} done={this.startGame}/>
-      // End game play after 4 rounds
-      case 5:
-        return <GameStats gameId={gameId}/>
-      // Default game play for rounds 1-4
+      // Transition to Game Stats page at the end of round 4
+      case 4:
+        if (this.state.unused_cards === 0) {
+          return <GameStats gameId={gameId}/>
+        }
+        // fallthrough
       default:
         return (
           <div>
             <RoundTracker round={this.state.round}/>
             <DrawCard
               gameId={gameId}
-              team_1_turn={this.state.team_1_turn}
+              gameState={this.state}
               nextRound={this.startGame}
               nextTurn={this.nextTurn}
             />
@@ -145,7 +150,7 @@ class GamePage extends Component {
 
 const RoundTracker = ({ round }) => (
   <div>
-    <p>Current Round: {round}</p>
+    <p>Current Round: <b>{rules.rounds[round-1].name}</b></p>
   </div>
 )
   

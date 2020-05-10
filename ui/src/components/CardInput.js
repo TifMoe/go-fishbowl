@@ -35,7 +35,7 @@ class CardInput extends Component {
 
     onSubmit(e) {
         e.preventDefault();
-        if (this.state.card != "") {
+        if (this.state.card !== "") {
             axios({
                 method: 'post',
                 url: '/v1/api/game/' + this.props.gameId + '/card',
