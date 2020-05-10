@@ -11,6 +11,7 @@ class NewGame extends Component {
             gameName: 'pending',
             team1: "",
             team2: "",
+            ok: false,
         }
         this.onSubmit = this.onSubmit.bind(this);
         this.routeChange = this.routeChange.bind(this);
@@ -18,6 +19,9 @@ class NewGame extends Component {
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value });
+        if ( this.state.team1.length > 2 && this.state.team2.length > 2) {
+            this.setState({ ok: true });
+        }
     }
 
     routeChange = () => {
@@ -25,28 +29,29 @@ class NewGame extends Component {
         this.props.history.push(path)
     }
 
-
     onSubmit(e) {
         e.preventDefault();
         // Save team names and fetch new game namespace
-        axios({
-            method: 'post',
-            url: 'v1/api/game',
-            timeout: 4000,    // 4 seconds timeout
-            data: {
-                team_1: capitalize(this.state.team1),
-                team_2: capitalize(this.state.team2),
-            }
-          })
-        .then((response) => {
-            this.setState(() => {
-                return { gameName: response.data.message }
+        if (this.state.team1 != "" && this.state.team2 != "") {
+            axios({
+                method: 'post',
+                url: 'v1/api/game',
+                timeout: 4000,    // 4 seconds timeout
+                data: {
+                    team_1: capitalize(this.state.team1),
+                    team_2: capitalize(this.state.team2),
+                }
+              })
+            .then((response) => {
+                this.setState(() => {
+                    return { gameName: response.data.message }
+                });
+                this.routeChange();
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-            this.routeChange();
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        }
       }
 
     render() {
@@ -77,7 +82,7 @@ class NewGame extends Component {
                         minLength="2"
                         onChange={this.onChange}
                     />
-                    <button type="submit"> Start a new game! </button>
+                    <button type="submit" disabled={!this.state.ok}> Start a new game! </button>
                 </form>
             </div>
 

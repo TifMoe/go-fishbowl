@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import Timer from './Timer';
+
 import axios from 'axios';
 
 import './DrawCard.css';
+import rules from './../assets/roundRules.json';
 
 class DrawCard extends Component {
 
@@ -21,6 +23,7 @@ class DrawCard extends Component {
         this.markDone = this.markDone.bind(this);
         this.endTurn = this.endTurn.bind(this);
         this.endRound = this.endRound.bind(this);
+        this.nextRoundTransition = this.nextRoundTransition.bind(this);
     }
 
     componentDidMount() {
@@ -59,7 +62,6 @@ class DrawCard extends Component {
             timeout: 4000,    // 4 seconds timeout
           })
         .then((response) => {
-            console.log(response);
             // Fetch new card
             this.drawCard();
         })
@@ -103,13 +105,39 @@ class DrawCard extends Component {
         });
     }
 
+    nextRoundTransition() {
+        const team = this.props.gameState.team_1_turn ? this.state.team1 : this.state.team2;
+        const color = this.props.gameState.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const round = this.props.gameState.round
+
+        if (this.state.showNextRound) {
+            if (round >= 4) {
+                // End game play after 4 rounds
+                return <p>Game over</p>
+            }
+            // Show next round rules in transition to next round
+            return (
+                <NextRoundRules
+                    round={round+1}
+                    rules={rules.rounds}
+                />
+            )
+        }
+         // Default view showing active team for inactive players
+         return (
+            <TeamUp
+                team={team}
+                color={color}
+            />
+         )
+    }
+
     render() {
-        const team = this.props.team_1_turn ? this.state.team1 : this.state.team2;
-        const color = this.props.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         return (
         <div className="draw-card">
 
             { this.state.showCard ?
+                // Player actively drawing new cards
                 <div>
                     <div className="actions">
                         <Timer timesUpHandler={this.endTurn}/>
@@ -121,15 +149,14 @@ class DrawCard extends Component {
                         drawHandler={this.drawCard}
                     />
                 </div>:
+
+                // Card values hidden
                 <div>
                     <div className="actions">
                         <button onClick={this.drawCard}>Start Turn</button>
                         <button onClick={this.endTurn}>End Turn</button>
                     </div>
-                    <PlaceHolder
-                        team={team}
-                        color={color}
-                    />
+                    {this.nextRoundTransition()}
                 </div>
             }
             <NextRound
@@ -152,7 +179,16 @@ const Card = ({ card, showSkip, doneHandler, drawHandler }) => (
     </div>
 )
 
-const PlaceHolder = ({ team, color }) => (
+const NextRoundRules = ({ round, rules }) => (
+    <div className="card" style={{backgroundColor: "#5F6167", color: "white"}}>
+        <div className="card-value">
+            <h3>Round {round}: {rules[round-1].name}</h3>
+            <p>{rules[round-1].rules}</p>
+        </div>
+    </div>
+)
+
+const TeamUp = ({ team, color }) => (
     <div className="card" style={{backgroundColor: color, color: "white"}}>
         <div className="card-value">
             <p>{team}'s Turn!</p>
@@ -166,7 +202,7 @@ const NextRound = ({ active, nextHandler }) => (
             onClick={nextHandler}
             className="next-round"
             disabled={!active}
-        >Next Round</button>
+        >Start Round</button>
     </div>
 )
 

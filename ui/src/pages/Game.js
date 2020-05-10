@@ -107,7 +107,7 @@ class GamePage extends Component {
             <RoundTracker round={this.state.round}/>
             <DrawCard
               gameId={gameId}
-              team_1_turn={this.state.team_1_turn}
+              gameState={this.state}
               nextRound={this.startGame}
               nextTurn={this.nextTurn}
             />
