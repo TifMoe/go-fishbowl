@@ -35,22 +35,24 @@ class CardInput extends Component {
 
     onSubmit(e) {
         e.preventDefault();
-        axios({
-            method: 'post',
-            url: '/v1/api/game/' + this.props.gameId + '/card',
-            timeout: 4000,    // 4 seconds timeout
-            data: {
-                value: capitalize(this.state.card),
-            }
-          })
-        .then((result) => {
-            console.log(result)
-            this.setState({card: ""})
-            this.getCardCount();
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        if (this.state.card != "") {
+            axios({
+                method: 'post',
+                url: '/v1/api/game/' + this.props.gameId + '/card',
+                timeout: 4000,    // 4 seconds timeout
+                data: {
+                    value: capitalize(this.state.card),
+                }
+              })
+            .then((result) => {
+                console.log(result)
+                this.setState({card: ""})
+                this.getCardCount();
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
       }
 
     render() {
