@@ -30,6 +30,7 @@ func GetIntEnv(key string, fallback int) int {
 	return fallback
 }
 
+// TODO: I'd like to have a more idiomatic way of returning different structs in the Results array (only Cards for card routes, teams for team routes, etc)
 func serveResponse(w http.ResponseWriter, res *apiResponse) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(res.Status)

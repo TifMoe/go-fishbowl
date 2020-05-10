@@ -35,23 +35,24 @@ class CardInput extends Component {
 
     onSubmit(e) {
         e.preventDefault();
-
-        axios({
-            method: 'post',
-            url: '/v1/api/game/' + this.props.gameId + '/card',
-            timeout: 4000,    // 4 seconds timeout
-            data: {
-                value: this.state.card,
-            }
-          })
-        .then((result) => {
-            console.log(result)
-            this.setState({card: ""})
-            this.getCardCount();
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        if (this.state.card !== "") {
+            axios({
+                method: 'post',
+                url: '/v1/api/game/' + this.props.gameId + '/card',
+                timeout: 4000,    // 4 seconds timeout
+                data: {
+                    value: capitalize(this.state.card),
+                }
+              })
+            .then((result) => {
+                console.log(result)
+                this.setState({card: ""})
+                this.getCardCount();
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        }
       }
 
     render() {
@@ -90,5 +91,15 @@ const StartGame = ({ startHandler, ready }) => (
         >Start Game</button>
     </div>
 )
+
+function capitalize(str) {
+    return str
+        .toLowerCase()
+        .split(' ')
+        .map(function(word) {
+            return word[0].toUpperCase() + word.substr(1);
+        })
+        .join(' ');
+}
 
 export default CardInput; 

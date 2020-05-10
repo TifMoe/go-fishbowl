@@ -21,3 +21,30 @@ button {
     background-color: #F4F7B4;
     color: rgb(27, 27, 27);
   }
+
+.team-input {
+    width: 30% !important;
+    min-width: 100px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    font-size: 16px;
+    margin: 2%;
+}
+
+.pink {
+  border: 3px solid#F25577;
+}
+
+.blue {
+  border: 3px solid #2EDDCB;
+}
+
+.pink:focus {
+    background-color: rgb(243, 101, 131);
+    color: white;
+}
+
+.blue:focus {
+  background-color: rgb(129, 236, 226);
+  color: rgb(27, 27, 27);
+}

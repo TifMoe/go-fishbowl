@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
+import Timer from './Timer';
+
 import axios from 'axios';
-import NextRound from '../components/NextRound';
 
 import './DrawCard.css';
+import rules from './../gameRules.json';
 
 class DrawCard extends Component {
 
@@ -11,18 +13,44 @@ class DrawCard extends Component {
         this.state = {
             id: "",
             card: "",
+            team1: "Team 1",
+            team2: "Team 2",
             showCard: false,
-            teamA: true,
             showNextRound: false,
+            showSkip: true,
         }
         this.drawCard = this.drawCard.bind(this);
-        this.endTurn = this.endTurn.bind(this);
         this.markDone = this.markDone.bind(this);
+        this.endTurn = this.endTurn.bind(this);
+        this.endRound = this.endRound.bind(this);
     }
 
+    componentDidMount() {
+        axios({
+            method: 'get',
+            url: `/v1/api/game/${this.props.gameId}`,
+            timeout: 4000,    // 4 seconds timeout
+          })
+        .then((response) => {
+          // On page load find current team in play
+          this.setState({
+              team1: response.data.result[0].teams.team_1.name,
+              team2: response.data.result[0].teams.team_2.name
+            })
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+      }
+
     endTurn() {
-        this.setState({showCard: false})
-        this.setState({teamA: !this.state.teamA})
+        this.setState({showCard: false});
+        this.props.nextTurn();
+    }
+
+    endRound() {
+        this.setState({showNextRound: false})
+        this.props.nextRound();
     }
 
     markDone() {
@@ -33,7 +61,6 @@ class DrawCard extends Component {
             timeout: 4000,    // 4 seconds timeout
           })
         .then((response) => {
-            console.log(response);
             // Fetch new card
             this.drawCard();
         })
@@ -52,7 +79,13 @@ class DrawCard extends Component {
           })
         .then((response) => {
             const cards = response.data.result[0].cards;
+            const cardCount = response.data.result[0].unused_cards
+
             if (cards && cards.length) {
+                if (cardCount === 1) {
+                    this.setState({ showSkip: false })
+                }
+
                 // Show new card
                 this.setState(() => {
                     return { card: cards[0].value,
@@ -72,47 +105,98 @@ class DrawCard extends Component {
     }
 
     render() {
-        const team = this.state.teamA ? "Pink": "Blue";
-        const color = this.state.teamA ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const team = this.props.gameState.team_1_turn ? this.state.team1 : this.state.team2;
+        const color = this.props.gameState.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
+        const round = this.props.gameState.round
+
         return (
         <div className="draw-card">
-            <button className="start" onClick={this.drawCard}>Start Turn</button>
-            <button className="stop" onClick={this.endTurn}>End Turn</button>
 
             { this.state.showCard ?
-                <Card
-                    card={this.state.card}
-                    doneHandler={this.markDone}
-                    drawHandler={this.drawCard}
-                /> :
-                <PlaceHolder
-                    team={team}
-                    color={color}
-                />
+                // Player actively drawing new cards
+                <div>
+                    <div className="actions">
+                        <Timer timesUpHandler={this.endTurn}/>
+                    </div>
+                    <Card
+                        card={this.state.card}
+                        showSkip={this.state.showSkip}
+                        doneHandler={this.markDone}
+                        drawHandler={this.drawCard}
+                    />
+                </div>:
+
+                // Card values hidden
+                <div>
+
+                    { this.state.showNextRound ?
+                        <NextRoundRules
+                            round={round+1}
+                            rules={rules.rounds}
+                        /> :
+                        // Default view showing which team is active
+                        <div>
+                             <div className="actions">
+                                <button onClick={this.drawCard}>Start Turn</button>
+                                <button onClick={this.endTurn}>End Turn</button>
+                            </div>
+                            <TeamUp
+                                team={team}
+                                color={color}
+                            />
+                        </div>
+                    }
+                </div>
             }
-            <NextRound  gameId={this.props.gameId} active={this.state.showNextRound}/>
+            <NextRound
+                active={this.state.showNextRound}
+                nextHandler={this.endRound}/>
         </div>
         );
     }
 }
 
-const Card = ({ card, doneHandler, drawHandler }) => (
+const Card = ({ card, showSkip, doneHandler, drawHandler }) => (
     <div className="card">
         <div className="card-value">
             <p>{card}</p>
         </div>
         <div className="actions">
             <button onClick={doneHandler} className="done">Got it!</button>
-            <button onClick={drawHandler} className="skip">Skip</button>
+            <button onClick={drawHandler}  disabled={!showSkip} className="skip">Skip</button>
         </div>
     </div>
 )
 
-const PlaceHolder = ({ team, color }) => (
+const NextRoundRules = ({ round, rules }) => (
+    <div>
+        { round <= 4 ?
+            <div className="card" style={{backgroundColor: "#5F6167", color: "white"}}>  
+                    <div className="card-value">
+                        <h3>Round {round}: {rules[round-1].name}</h3>
+                        <p>{rules[round-1].rules}</p>
+                    </div>
+            </div> :
+            <div></div>
+        }
+    </div>
+)
+
+const TeamUp = ({ team, color }) => (
     <div className="card" style={{backgroundColor: color, color: "white"}}>
         <div className="card-value">
-            <p>{team} Team's Turn!</p>
+            <p>{team}'s Turn!</p>
         </div>
+    </div>
+)
+
+const NextRound = ({ active, nextHandler }) => (
+    <div>
+        <button
+            onClick={nextHandler}
+            className="next-round"
+            disabled={!active}
+        >Start Round</button>
     </div>
 )
 

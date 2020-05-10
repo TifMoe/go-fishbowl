@@ -39,9 +39,19 @@ type controller struct {
 
 // NewGame is controller for generating new game namespace and instantiating in the database
 func (c *controller) NewGame(w http.ResponseWriter, r *http.Request) {
+	input := service.TeamInput{}
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&input)
+	if err != nil {
+		log.Printf("error decoding values: %v", err)
+		res := buildResponse(Game{}, errors.ErrInvalidInput, "")
+		serveResponse(w, res)
+		return
+	}
 
 	// Instantiate new game namespace
-	nameSpace, err := c.Svc.NewGame()
+	nameSpace, err := c.Svc.NewGame(&input)
 	if err != nil {
 		log.Printf("error generating new namespace: %v", err)
 
@@ -75,8 +85,13 @@ func (c *controller) UpdateGame(w http.ResponseWriter, r *http.Request) {
 	}
 
 	game, err := c.Svc.UpdateGame(gameID, &input)
+	if err != nil {
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+
 	res := buildResponse(internalToExternal(game), &errors.ErrorInternal{}, "")
-	res.Status = 201
 	serveResponse(w, res)
 }
 
@@ -104,6 +119,7 @@ func (c *controller) NewCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: Only return card value in API response, not entire game (currently missing values)
 	game := Game{
 		ID: gameID,
 		Cards: []Card{
@@ -157,10 +173,16 @@ func (c *controller) GetRandomCard(w http.ResponseWriter, r *http.Request) {
 		cards = []Card{internalToExternalCard(internalCard)}
 	}
 
-	game := Game{
-		ID: gameID,
-		Cards: cards,
+	gameInternal, err := c.Svc.GetGame(gameID)
+	if err != nil {
+		log.Printf("error fetching cards: %v", err)
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
 	}
+
+	game := internalToExternal(gameInternal)
+	game.Cards = cards
 
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
@@ -190,7 +212,7 @@ func (c *controller) StartRound(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	gameID := params["gameID"]
 
-	newRound, err := c.Svc.SetCardsUnused(gameID)
+	newRound, err := c.Svc.ResetGame(gameID)
 	if err != nil {
 		log.Printf("error setting cards unused for game %s: %v", gameID, err)
 		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
@@ -214,6 +236,8 @@ func (c *controller) ResetGame(w http.ResponseWriter, r *http.Request) {
 		serveResponse(w, res)
 		return
 	}
+
+	// TODO: Return actual game
 	game := Game{}
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)

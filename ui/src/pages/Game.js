@@ -4,8 +4,10 @@ import axios from 'axios';
 import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
 import DrawCard from '../components/DrawCard';
+import GameStats from '../components/GameStats';
 
 import fishbowl from '../assets/Fishbowl3.svg';
+import rules from './../gameRules.json';
 import './Game.css';
 
 
@@ -15,12 +17,32 @@ class GamePage extends Component {
       super();
       this.state = {
           ready: false,
-          round: 0
+          round: 0,
+          team_1_turn: true,
+          unused_cards: 0,
+          team: "",
       }
+      this.saveState = this.saveState.bind(this);
       this.startGame = this.startGame.bind(this);
+      this.nextTurn = this.nextTurn.bind(this);
+      this.componentSwitch = this.componentSwitch.bind(this);
   }
 
-  componentWillMount() {
+  saveState(data) {
+    let team1 = data.teams.team_1.name
+    let team2 = data.teams.team_2.name
+    let currentTeam = data.team_1_turn ? team1 : team2
+
+    this.setState({
+      team_1_turn: data.team_1_turn,
+      ready: data.started,
+      round: data.current_round,
+      unused_cards: data.unused_cards,
+      team: currentTeam
+    })
+  }
+
+  componentDidMount() {
     const { params: { gameId } } = this.props.match;
     axios({
         method: 'get',
@@ -28,8 +50,7 @@ class GamePage extends Component {
         timeout: 4000,    // 4 seconds timeout
       })
     .then((response) => {
-        console.log(response)
-        this.setState({ready: response.data.result[0].started})
+      this.saveState(response.data.result[0])
     })
     .catch(function (error) {
         console.log(error);
@@ -39,8 +60,8 @@ class GamePage extends Component {
   startGame() {
     const { params: { gameId } } = this.props.match;
     axios({
-        method: 'patch',
-        url: `/v1/api/game/${gameId}`,
+        method: 'put',
+        url: `/v1/api/game/${gameId}/start`,
         timeout: 4000,    // 4 seconds timeout
         data: {
             started: true,
@@ -48,27 +69,70 @@ class GamePage extends Component {
         }
       })
     .then((response) => {
-        console.log(response)
-        this.setState({ ready: true });
+      this.saveState(response.data.result[0])
     })
     .catch(function (error) {
         console.log(error);
     });
   }
 
+  nextTurn() {
+    const { params: { gameId } } = this.props.match;
+    axios({
+      method: 'patch',
+      url: `/v1/api/game/${gameId}`,
+      timeout: 4000,    // 4 seconds timeout
+      data: {
+          team_1_turn: !this.state.team_1_turn,
+          current_round: this.state.round,
+      }
+    })
+    .then((response) => {
+        this.saveState(response.data.result[0])
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+  }
+
+  componentSwitch(gameId) {
+    switch (this.state.round) {
+      // Initial game setup
+      case 0:
+        return <CardInput gameId={gameId} done={this.startGame}/>
+      // Transition to Game Stats page at the end of round 4
+      case 4:
+        if (this.state.unused_cards === 0) {
+          return <GameStats gameId={gameId}/>
+        }
+        // fallthrough
+      default:
+        return (
+          <div>
+            <RoundTracker round={this.state.round}/>
+            <DrawCard
+              gameId={gameId}
+              gameState={this.state}
+              nextRound={this.startGame}
+              nextTurn={this.nextTurn}
+            />
+          </div>
+        )
+    }
+  }
+
   render() {
       const { params: { gameId } } = this.props.match;
+      const gameComponent = this.componentSwitch(gameId)
+
       return (
         <div className="Game-page">
             <GameTagHeader gameId={gameId}/>
-            <h2 className="title">Fair warning... this fishbowl is still under development</h2>
+            <h2 className="title">This fishbowl is still under development</h2>
 
             <div className="row">
               <div className="col-left">
-                { this.state.ready ?
-                  <DrawCard gameId={gameId}/> :
-                  <CardInput gameId={gameId} done={this.startGame}/>
-                }
+                {gameComponent}
               </div>
 
               <div className="col-right">
@@ -82,5 +146,12 @@ class GamePage extends Component {
       );
     }
   }
+
+
+const RoundTracker = ({ round }) => (
+  <div>
+    <p>Current Round: <b>{rules.rounds[round-1].name}</b></p>
+  </div>
+)
   
   export default GamePage;
