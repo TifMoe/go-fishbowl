@@ -84,6 +84,8 @@ class DrawCard extends Component {
             if (cards && cards.length) {
                 if (cardCount === 1) {
                     this.setState({ showSkip: false })
+                } else {
+                    this.setState({ showSkip: true })
                 }
 
                 // Show new card
