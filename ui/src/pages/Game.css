@@ -40,9 +40,14 @@
 @media screen and (max-width: 600px) {
   .col-left {
     width: 100%;
+    text-align: center;
   }
   .col-right {
     margin-left: 0;
+    text-align: center;
+  }
+  .title {
+    margin-top: 80px !important;
   }
 }
 
@@ -60,4 +65,23 @@ img {
 
 .title {
   margin-top: 50px;
+}
+
+.round {
+  margin-bottom: 0px;
+}
+
+.scorekeeper {
+  margin-top: 5px;
+  border-radius: 3px;
+  height: 100px;
+  min-width: 300px;
+  width: 800px;
+}
+
+.score {
+  margin-left: 5%;
+  margin-right: 5%;
+  height: 90%;
+  text-align: center;
 }

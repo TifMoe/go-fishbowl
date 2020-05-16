@@ -21,9 +21,22 @@ class GamePage extends Component {
           team_1_turn: true,
           unused_cards: 0,
           team: "",
+          team1: {
+            round_1_pts: 0,
+            round_2_pts: 0,
+            round_3_pts: 0,
+            round_4_pts: 0,
+          },
+          team2: {
+            round_1_pts: 0,
+            round_2_pts: 0,
+            round_3_pts: 0,
+            round_4_pts: 0,
+          }
       }
       this.saveState = this.saveState.bind(this);
       this.startGame = this.startGame.bind(this);
+      this.endGame = this.endGame.bind(this);
       this.nextTurn = this.nextTurn.bind(this);
       this.componentSwitch = this.componentSwitch.bind(this);
   }
@@ -34,6 +47,8 @@ class GamePage extends Component {
     let currentTeam = data.team_1_turn ? team1 : team2
 
     this.setState({
+      team1: data.teams.team_1,
+      team2: data.teams.team_2,
       team_1_turn: data.team_1_turn,
       ready: data.started,
       round: data.current_round,
@@ -63,9 +78,23 @@ class GamePage extends Component {
         method: 'put',
         url: `/v1/api/game/${gameId}/start`,
         timeout: 4000,    // 4 seconds timeout
+      })
+    .then((response) => {
+      this.saveState(response.data.result[0])
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+  }
+
+  endGame() {
+    const { params: { gameId } } = this.props.match;
+    axios({
+        method: 'patch',
+        url: `/v1/api/game/${gameId}`,
+        timeout: 4000,    // 4 seconds timeout
         data: {
-            started: true,
-            current_round: 1
+            current_round: 5 // Forces end of game
         }
       })
     .then((response) => {
@@ -96,43 +125,59 @@ class GamePage extends Component {
   }
 
   componentSwitch(gameId) {
+    var title;
+    var component;
+
     switch (this.state.round) {
       // Initial game setup
       case 0:
-        return <CardInput gameId={gameId} done={this.startGame}/>
+        title = <h2>Enter nouns below to get started!</h2>;
+        component = <CardInput gameId={gameId} done={this.startGame}/>;
+        break
+      case 5: // Force end of game
+        title = <h2>Congratulations!!</h2>;
+        component = <GameStats gameId={gameId}/>;
+        break
       // Transition to Game Stats page at the end of round 4
       case 4:
-        if (this.state.unused_cards === 0) {
-          return <GameStats gameId={gameId}/>
+        if (this.state.unused_cards === 0) { // Natural end of game
+          title = <h2>Congratulations!!</h2>;
+          component = <GameStats gameId={gameId}/>;
+          break
         }
         // fallthrough
       default:
-        return (
-          <div>
-            <RoundTracker round={this.state.round}/>
+          title = <RoundTracker round={this.state.round} team1={this.state.team1} team2={this.state.team2}/>;
+          component = <div>
             <DrawCard
               gameId={gameId}
               gameState={this.state}
+              updateState={this.saveState}
               nextRound={this.startGame}
               nextTurn={this.nextTurn}
+              endGame={this.endGame}
             />
-          </div>
-        )
+          </div>;
+          break
+    }
+    return {
+      "title": title,
+      "component": component
     }
   }
 
   render() {
       const { params: { gameId } } = this.props.match;
-      const gameComponent = this.componentSwitch(gameId)
+      const element  = this.componentSwitch(gameId)
 
       return (
         <div className="Game-page">
             <GameTagHeader gameId={gameId}/>
-            <h2 className="title">This fishbowl is still under development</h2>
+            <div className="title">{element.title}</div>
 
             <div className="row">
               <div className="col-left">
-                {gameComponent}
+                {element.component}
               </div>
 
               <div className="col-right">
@@ -142,16 +187,32 @@ class GamePage extends Component {
                   {/* TODO: Add counter component here */}
               </div>
             </div>
+
           </div>
       );
     }
   }
 
 
-const RoundTracker = ({ round }) => (
-  <div>
-    <p>Current Round: <b>{rules.rounds[round-1].name}</b></p>
-  </div>
-)
+function RoundTracker({ round, team1, team2 }) {
+  let team1_pts = [team1.round_1_pts, team1.round_2_pts, team1.round_3_pts, team1.round_4_pts].reduce((a, b) => a + b, 0)
+  let team2_pts = [team2.round_1_pts, team2.round_2_pts, team2.round_3_pts, team2.round_4_pts].reduce((a, b) => a + b, 0)
+
+  return (
+    <div className="scorekeeper row">
+      <h2><b>{rules.rounds[round-1].name}</b></h2>
+      <div>
+        <div className="score col-left">
+            {team1.name}<br/>
+            <b>{team1_pts}</b>
+          </div>
+        <div className="score col-right">
+            {team2.name}<br/>
+            <b>{team2_pts}</b>
+        </div>
+      </div>
+    </div>
+  )
+}
   
   export default GamePage;

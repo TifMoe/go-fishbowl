@@ -24,7 +24,6 @@
   }
 
  .TitleImg {
-    display: block;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -34,19 +33,23 @@
   }
 
  .TitleImg > svg {
-    width: 90%;
     margin: 0 auto;
-    max-height: 300px;
+    max-height: 275px;
     max-width: 800pt;
-  }
-
-  path {
-    width: 100%;
-    display: block;
-    margin: 0 auto;
   }
 
   .intro {
     padding-left: 20%;
     padding-right: 20%;
   }
+
+  button:disabled {
+    opacity: 40%;
+    pointer-events: none;
+}
+
+.small-text {
+  font-size: calc(8px + 2vmin);
+  padding-left: 15%;
+  padding-right: 15%;
+}
