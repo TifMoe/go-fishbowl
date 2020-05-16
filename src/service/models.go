@@ -23,7 +23,7 @@ func (c CardInput) IsEmpty() bool {
 // GameInput contains value for updates to game data
 type GameInput struct {
 	Started			*bool 	`json:"started,omitempty"`
-	Round			*int	`json:"current_round,omitempty" validate:"max=4"`
+	Round			*int	`json:"current_round,omitempty" validate:"max=5"`
 	Team1Turn		*bool	`json:"team_1_turn,omitempty"`
 
 }
