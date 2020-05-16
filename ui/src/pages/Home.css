@@ -22,4 +22,31 @@
   .Home-link {
     color: #61dafb;
   }
-  
+
+ .TitleImg {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 300px;
+    height: 100%;
+    cursor: pointer;
+  }
+
+ .TitleImg > svg {
+    width: 90%;
+    margin: 0 auto;
+    max-height: 300px;
+    max-width: 800pt;
+  }
+
+  path {
+    width: 100%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .intro {
+    padding-left: 20%;
+    padding-right: 20%;
+  }
