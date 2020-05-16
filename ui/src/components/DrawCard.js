@@ -63,9 +63,7 @@ class DrawCard extends Component {
         .then((response) => {
             // Fetch new card
             this.drawCard();
-            console.log(this.props.gameState)
             this.props.updateState(response.data.result[0])
-            console.log(this.props.gameState)
         })
         .catch(function (error) {
             console.log(error);

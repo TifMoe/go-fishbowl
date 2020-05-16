@@ -5,6 +5,7 @@ import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
 import DrawCard from '../components/DrawCard';
 import GameStats from '../components/GameStats';
+import ScoreKeeper from '../components/ScoreKeeper';
 
 import fishbowl from '../assets/Fishbowl3.svg';
 import rules from './../gameRules.json';
@@ -126,43 +127,46 @@ class GamePage extends Component {
 
   componentSwitch(gameId) {
     var title;
-    var component;
+    var leftComponent;
+    var rightComponent;
 
     switch (this.state.round) {
       // Initial game setup
       case 0:
         title = <h2>Enter nouns below to get started!</h2>;
-        component = <CardInput gameId={gameId} done={this.startGame}/>;
+        leftComponent = <CardInput gameId={gameId} done={this.startGame}/>;
         break
       case 5: // Force end of game
         title = <h2>Congratulations!!</h2>;
-        component = <GameStats gameId={gameId}/>;
+        leftComponent = <GameStats gameId={gameId}/>;
         break
       // Transition to Game Stats page at the end of round 4
       case 4:
         if (this.state.unused_cards === 0) { // Natural end of game
           title = <h2>Congratulations!!</h2>;
-          component = <GameStats gameId={gameId}/>;
+          leftComponent = <GameStats gameId={gameId}/>;
           break
         }
         // fallthrough
       default:
           title = <RoundTracker round={this.state.round} team1={this.state.team1} team2={this.state.team2}/>;
-          component = <div>
-            <DrawCard
-              gameId={gameId}
-              gameState={this.state}
-              updateState={this.saveState}
-              nextRound={this.startGame}
-              nextTurn={this.nextTurn}
-              endGame={this.endGame}
-            />
-          </div>;
+          leftComponent = <div>
+              <DrawCard
+                gameId={gameId}
+                gameState={this.state}
+                updateState={this.saveState}
+                nextRound={this.startGame}
+                nextTurn={this.nextTurn}
+                endGame={this.endGame}
+              />
+            </div>;
+          rightComponent = <ScoreKeeper team1={this.state.team1} team2={this.state.team2}/>;
           break
     }
     return {
       "title": title,
-      "component": component
+      "leftComponent": leftComponent,
+      "rightComponent": rightComponent,
     }
   }
 
@@ -172,15 +176,19 @@ class GamePage extends Component {
 
       return (
         <div className="Game-page">
-            <GameTagHeader gameId={gameId}/>
+          <GameTagHeader gameId={gameId}/>
+
+          <div className="row">
             <div className="title">{element.title}</div>
+          </div>
 
             <div className="row">
               <div className="col-left">
-                {element.component}
+                {element.leftComponent}
               </div>
 
               <div className="col-right">
+                  {element.rightComponent}
                   <div className="logo">
                     <img src={fishbowl} className="bowl" alt="logo" />
                   </div>
@@ -194,23 +202,10 @@ class GamePage extends Component {
   }
 
 
-function RoundTracker({ round, team1, team2 }) {
-  let team1_pts = [team1.round_1_pts, team1.round_2_pts, team1.round_3_pts, team1.round_4_pts].reduce((a, b) => a + b, 0)
-  let team2_pts = [team2.round_1_pts, team2.round_2_pts, team2.round_3_pts, team2.round_4_pts].reduce((a, b) => a + b, 0)
-
+function RoundTracker({ round }) {
   return (
-    <div className="scorekeeper row">
-      <h2><b>{rules.rounds[round-1].name}</b></h2>
-      <div>
-        <div className="score col-left">
-            {team1.name}<br/>
-            <b>{team1_pts}</b>
-          </div>
-        <div className="score col-right">
-            {team2.name}<br/>
-            <b>{team2_pts}</b>
-        </div>
-      </div>
+    <div className="round-name">
+        <h2><b>{rules.rounds[round-1].name}</b></h2>
     </div>
   )
 }

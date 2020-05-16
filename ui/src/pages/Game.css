@@ -71,17 +71,11 @@ img {
   margin-bottom: 0px;
 }
 
-.scorekeeper {
-  margin-top: 5px;
-  border-radius: 3px;
-  height: 100px;
-  min-width: 300px;
-  width: 800px;
-}
-
-.score {
-  margin-left: 5%;
-  margin-right: 5%;
-  height: 90%;
+.round-name {
+  padding: 10px 16px;
+  color: #f1f1f1;
+  display: block;
+  width: 100%;
   text-align: center;
+  line-height: 30px;
 }
