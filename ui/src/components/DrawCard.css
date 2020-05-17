@@ -52,3 +52,10 @@ button:disabled {
 .done:hover{
     background-color: rgb(46, 221, 204);
 }
+
+.next-round {
+    width: 40%;
+    max-width: 175px;
+    padding: 14px 10px !important;
+    margin: 5%;
+}

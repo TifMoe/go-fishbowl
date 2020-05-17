@@ -40,9 +40,14 @@
 @media screen and (max-width: 600px) {
   .col-left {
     width: 100%;
+    text-align: center;
   }
   .col-right {
     margin-left: 0;
+    text-align: center;
+  }
+  .title {
+    margin-top: 80px !important;
   }
 }
 
@@ -60,4 +65,17 @@ img {
 
 .title {
   margin-top: 50px;
+}
+
+.round {
+  margin-bottom: 0px;
+}
+
+.round-name {
+  padding: 10px 16px;
+  color: #f1f1f1;
+  display: block;
+  width: 100%;
+  text-align: center;
+  line-height: 30px;
 }

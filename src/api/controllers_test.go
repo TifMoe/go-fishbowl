@@ -473,8 +473,8 @@ func (s *mockService) GetRandomCard(gameID string) (card *service.Card, err erro
 	return
 }
 
-func (s *mockService) MarkCardUsed(gameID, cardID string) error {
-	return nil
+func (s *mockService) MarkCardUsed(gameID, cardID string) (*service.Game, error) {
+	return &service.Game{}, nil
 }
 
 func (s *mockService) ResetGame(gameID string) (*service.Game, error) {

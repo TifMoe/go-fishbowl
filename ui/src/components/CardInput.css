@@ -36,6 +36,11 @@ button:hover {
     color: rgb(27, 27, 27);
 }
 
+button:disabled {
+    opacity: 40%;
+    pointer-events: none;
+}
+
 .small-text {
     font-size: 15px;
 }

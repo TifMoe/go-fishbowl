@@ -194,7 +194,7 @@ func (c *controller) MarkCardUsed(w http.ResponseWriter, r *http.Request) {
 	gameID := params["gameID"]
 	cardID := params["cardID"]
 
-	err := c.Svc.MarkCardUsed(gameID, cardID)
+	gameInternal, err := c.Svc.MarkCardUsed(gameID, cardID)
 	if err != nil {
 		log.Printf("error marking card %s as used: %v", cardID, err)
 		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
@@ -202,7 +202,7 @@ func (c *controller) MarkCardUsed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	game := Game{}
+	game := internalToExternal(gameInternal)
 	res := buildResponse(game, &errors.ErrorInternal{}, "")
 	serveResponse(w, res)
 }
