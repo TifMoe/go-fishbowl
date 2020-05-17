@@ -58,22 +58,25 @@ class GameStats extends Component {
 function GetWinner(team1, team2) {
     let team1pts = getPoints(team1)
     let team2pts = getPoints(team2)
-    let headline = "Congratulations!!"
     let winner = (team1pts > team2pts ? team1.name : team2.name) + " Wins!!"
 
     if (team1pts === team2pts) {
-        headline = "Congrats all around!! "
         winner = `${team1.name} and ${team2.name} have tied!!`
     }
 
     return (
         <div>
-        <h2>{headline}</h2>
         <h4>{winner}</h4>
-            <ul className="score">
-                <li>{team1.name}: {team1pts} cards</li>
-                <li>{team2.name}: {team2pts} cards</li>
-            </ul>
+        <div className="scorekeeper row">
+            <div className="score col-left">
+                {team1.name}<br/>
+                <b>{team1pts}</b> cards
+            </div>
+            <div className="score col-right">
+                {team2.name}<br/>
+                <b>{team2pts}</b> cards
+            </div>
+        </div>
         </div>
     )
 }

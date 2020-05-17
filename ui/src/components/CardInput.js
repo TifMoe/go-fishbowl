@@ -21,7 +21,6 @@ class CardInput extends Component {
             timeout: 4000,    // 4 seconds timeout
           })
         .then((response) => {
-            console.log(response);
             this.setState({count: response.data.result[0].unused_cards})
         })
         .catch(function (error) {
@@ -45,7 +44,6 @@ class CardInput extends Component {
                 }
               })
             .then((result) => {
-                console.log(result)
                 this.setState({card: ""})
                 this.getCardCount();
             })

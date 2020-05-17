@@ -1,7 +1,7 @@
 .Home {
     text-align: center;
   }
-  
+
   .Home-logo {
     width: 60%;
     min-width: 200px;
@@ -22,4 +22,34 @@
   .Home-link {
     color: #61dafb;
   }
-  
+
+ .TitleImg {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-height: 300px;
+    height: 100%;
+    cursor: pointer;
+  }
+
+ .TitleImg > svg {
+    margin: 0 auto;
+    max-height: 275px;
+    max-width: 800pt;
+  }
+
+  .intro {
+    padding-left: 20%;
+    padding-right: 20%;
+  }
+
+  button:disabled {
+    opacity: 40%;
+    pointer-events: none;
+}
+
+.small-text {
+  font-size: calc(8px + 2vmin);
+  padding-left: 15%;
+  padding-right: 15%;
+}

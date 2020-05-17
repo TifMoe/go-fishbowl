@@ -63,6 +63,7 @@ class DrawCard extends Component {
         .then((response) => {
             // Fetch new card
             this.drawCard();
+            this.props.updateState(response.data.result[0])
         })
         .catch(function (error) {
             console.log(error);
@@ -150,9 +151,14 @@ class DrawCard extends Component {
                     }
                 </div>
             }
-            <NextRound
-                active={this.state.showNextRound}
-                nextHandler={this.endRound}/>
+            <div className="actions">
+                <NextRound
+                    active={this.state.showNextRound}
+                    nextHandler={this.endRound}/>
+                <EndGame
+                    active={this.state.showNextRound}
+                    endHandler={this.props.endGame}/>
+            </div>
         </div>
         );
     }
@@ -193,13 +199,19 @@ const TeamUp = ({ team, color }) => (
 )
 
 const NextRound = ({ active, nextHandler }) => (
-    <div>
         <button
             onClick={nextHandler}
             className="next-round"
             disabled={!active}
-        >Start Round</button>
-    </div>
+        >Next Round</button>
+)
+
+const EndGame = ({ active, endHandler }) => (
+        <button
+            onClick={endHandler}
+            className="next-round"
+            disabled={!active}
+        >End Game</button>
 )
 
 export default DrawCard; 
