@@ -1,9 +1,9 @@
 package service
 
 import (
-    "encoding/json"
-    "fmt"
-	"io/ioutil"	
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"math/rand"
 	"time"
@@ -16,8 +16,9 @@ func NewRandomService() RandomService {
 
 // RandomService is interface for collection of methods to draw random values
 type RandomService interface {
-    GetRandomCard(cards []Card) *Card
+	GetRandomCard(cards []Card) *Card
 	GetRandomWords() (string, error)
+	GetRandomNoun() (string, error)
 }
 
 type random struct {}
@@ -41,8 +42,19 @@ func (r *random) GetRandomWords() (string, error) {
 	return adj + "-" + noun, nil
 }
 
+// TODO: simplify random logic into single function
+// GetRandomNoun is a utility function that picks a random noun
+func (r *random) GetRandomNoun() (string, error) {
+	words, err := readWords()
+	if err != nil {
+		return "", err
+	}
+	noun := randPicker(words.Nouns)
+	return noun, nil
+}
+
 func randPicker(words []string) string {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	return words[rand.Intn(len(words))]
 }
 
@@ -55,7 +67,7 @@ func readWords() (words *WordChoices, err error) {
 		fmt.Println("error:", err)
 		return
 	}
-	
+
 	// unmarshall data into word choices struct
 	err = json.Unmarshal(data, &words)
 	if err != nil {
