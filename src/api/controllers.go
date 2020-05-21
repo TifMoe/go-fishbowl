@@ -1,10 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
-    "net/http"
-	"encoding/json"
+	"net/http"
 
 	"github.com/gorilla/mux"
 
@@ -19,7 +19,7 @@ func NewGameController(svc service.GameService) *controller {
 	}
 }
 
-// GameController is interface with methods to interact with redis db	
+// GameController is interface with methods to interact with redis db
 type GameController interface {
 	NewGame(w http.ResponseWriter, r *http.Request)
 	GetGame(w http.ResponseWriter, r *http.Request)
@@ -124,9 +124,9 @@ func (c *controller) NewCard(w http.ResponseWriter, r *http.Request) {
 		ID: gameID,
 		Cards: []Card{
 			Card{
-				ID: cardID,
+				ID:    cardID,
 				Value: card.Value,
-				Used: false,
+				Used:  false,
 			},
 		},
 	}
@@ -141,7 +141,7 @@ func (c *controller) NewCard(w http.ResponseWriter, r *http.Request) {
 func (c *controller) GetGame(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	gameID := params["gameID"]
-	
+
 	gameInternal, err := c.Svc.GetGame(gameID)
 	if err != nil {
 		log.Printf("error fetching cards: %v", err)
