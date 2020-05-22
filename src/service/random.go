@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"path/filepath"
 	"math/rand"
+	"path/filepath"
 	"time"
 )
 
@@ -21,7 +21,7 @@ type RandomService interface {
 	GetRandomNoun() (string, error)
 }
 
-type random struct {}
+type random struct{}
 
 // GetRandomCard is utility function to select a random card from a slice
 func (r *random) GetRandomCard(cards []Card) *Card {
@@ -61,7 +61,7 @@ func randPicker(words []string) string {
 func readWords() (words *WordChoices, err error) {
 	// TODO store words in noSQL db when we create it
 	// read file from assets for now
-	absPath, _ := filepath.Abs("./assets/randwords.json")  // path from the working directory
+	absPath, _ := filepath.Abs("./assets/randwords.json") // path from the working directory
 	data, err := ioutil.ReadFile(absPath)
 	if err != nil {
 		fmt.Println("error:", err)

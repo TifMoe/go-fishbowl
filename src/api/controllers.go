@@ -30,11 +30,30 @@ type GameController interface {
 	GetRandomCard(w http.ResponseWriter, r *http.Request)
 	MarkCardUsed(w http.ResponseWriter, r *http.Request)
 	StartRound(w http.ResponseWriter, r *http.Request)
+	StartRandomGame(w http.ResponseWriter, r *http.Request)
 }
 
 // Controller holds service for Game Handlers
 type controller struct {
 	Svc service.GameService
+}
+
+func (c *controller) StartRandomGame(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	gameID := params["gameID"]
+	numCards := 10 
+	
+	game, err := c.Svc.MakeRandomCards(gameID, numCards)
+	
+	if err != nil {
+		res := buildResponse(Game{}, errors.ErrInternalError, gameID)
+		serveResponse(w, res)
+		return
+	}
+
+	res := buildResponse(internalToExternal(game), &errors.ErrorInternal{}, "")
+	serveResponse(w, res)
+
 }
 
 // NewGame is controller for generating new game namespace and instantiating in the database
