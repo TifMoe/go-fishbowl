@@ -7,49 +7,49 @@ import (
 
 // apiResponse contains status code and json response to be served by API
 type apiResponse struct {
-	Status 	int 
-	Data 	*Response
+	Status int
+	Data   *Response
 }
 
 // Response contains json response
 type Response struct {
-	Result 		[]Game 			`json:"result"`
-	Success		bool 			`json:"success"`
-	Error 		[]errors.Error 	`json:"error"`
-	Message		string 			`json:"message"`
+	Result  []Game         `json:"result"`
+	Success bool           `json:"success"`
+	Error   []errors.Error `json:"error"`
+	Message string         `json:"message"`
 }
 
 // Game contains data a specific game session
 type Game struct {
-	ID     			string 	`json:"id"`
-	Cards   		[]Card	`json:"cards"`
-	Started			bool 	`json:"started"`
-	CurrentRound	int		`json:"current_round"`
-	Team1Turn		bool	`json:"team_1_turn"`
-	UnusedCards		int		`json:"unused_cards"`
-	Teams			Teams 	`json:"teams"`
+	ID           string `json:"id"`
+	Cards        []Card `json:"cards"`
+	Started      bool   `json:"started"`
+	CurrentRound int    `json:"current_round"`
+	Team1Turn    bool   `json:"team_1_turn"`
+	UnusedCards  int    `json:"unused_cards"`
+	Teams        Teams  `json:"teams"`
 }
 
 // Card contains data for a specific card
 type Card struct {
-	ID 		string	`json:"id"`
-	Value   string  `json:"value"`
-	Used 	bool  	`json:"used"`
+	ID    string `json:"id"`
+	Value string `json:"value"`
+	Used  bool   `json:"used"`
 }
 
 // Teams is nested struct containing details for each of the two teams
 type Teams struct {
-	Team1 	Team `json:"team_1"`
-	Team2 	Team `json:"team_2"`
+	Team1 Team `json:"team_1"`
+	Team2 Team `json:"team_2"`
 }
 
 // Team contains data for a specific
 type Team struct {
-	Name		string	`json:"name"`
-	Round1		int		`json:"round_1_pts"`
-	Round2   	int		`json:"round_2_pts"`
-	Round3   	int		`json:"round_3_pts"`
-	Round4   	int		`json:"round_4_pts"`
+	Name   string `json:"name"`
+	Round1 int    `json:"round_1_pts"`
+	Round2 int    `json:"round_2_pts"`
+	Round3 int    `json:"round_3_pts"`
+	Round4 int    `json:"round_4_pts"`
 }
 
 // TODO: This is gross, optimize later

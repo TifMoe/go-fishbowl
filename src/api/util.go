@@ -1,11 +1,11 @@
 package api
 
 import (
-	"os"
+	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
-	"encoding/json"
 
 	"github.com/tifmoe/go-fishbowl/src/errors"
 )
@@ -54,7 +54,7 @@ func buildResponse(game Game, er *errors.ErrorInternal, message string) *apiResp
 
 	return &apiResponse{
 		Status: status,
-		Data: res,
+		Data:   res,
 	}
 }
 
@@ -65,18 +65,18 @@ func buildResult(g Game, m string) *Response {
 	}
 
 	return &Response{
-		Result: game,
+		Result:  game,
 		Success: true,
-		Error: []errors.Error{},
+		Error:   []errors.Error{},
 		Message: m,
 	}
 }
 
 func buildError(e *errors.Error) *Response {
 	return &Response{
-		Result: []Game{},
+		Result:  []Game{},
 		Success: false,
-		Error: []errors.Error{*e},
+		Error:   []errors.Error{*e},
 		Message: "",
 	}
 }

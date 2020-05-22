@@ -9,7 +9,7 @@ import (
 
 const (
 	staticPath = "./web"
-	indexPath = "index.html"
+	indexPath  = "index.html"
 )
 
 // NewRouter will build a new router for the routes defined below
@@ -29,7 +29,7 @@ func NewRouter(c GameController) *mux.Router {
 	// Card resource
 	api.HandleFunc("/game/{gameID}/card", c.NewCard).Methods("POST")
 	api.HandleFunc("/game/{gameID}/card/{cardID}/used", c.MarkCardUsed).Methods("PATCH") // marks single card as used
-	api.HandleFunc("/game/{gameID}/card/random", c.GetRandomCard).Methods("GET") // returns a random un-used card
+	api.HandleFunc("/game/{gameID}/card/random", c.GetRandomCard).Methods("GET")         // returns a random un-used card
 
 	// Serve Frontend routes
 	// For requests to dynamically generated game pages, serve index.html
