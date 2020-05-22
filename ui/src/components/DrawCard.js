@@ -92,7 +92,7 @@ class DrawCard extends Component {
         this.setState({showNextRound: false})
 
         axios({
-            method: 'get',
+            method: 'put',
             url: `/v1/api/game/${this.props.gameId}/card/random`,
             timeout: 4000,    // 4 seconds timeout
           })
