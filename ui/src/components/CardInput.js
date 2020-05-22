@@ -12,6 +12,7 @@ class CardInput extends Component {
         };
         this.onSubmit = this.onSubmit.bind(this);
         this.getCardCount = this.getCardCount.bind(this);
+        this.startRandomGame = this.startRandomGame.bind(this);
     }
 
     getCardCount() {
@@ -53,6 +54,21 @@ class CardInput extends Component {
         }
       }
 
+    startRandomGame() {
+        console.log(this.props.gameId)
+        axios({
+            method: 'get',
+            url: '/v1/api/game/' + this.props.gameId + '/randomGame',
+            timeout: 4000
+        })
+        .then((result) => {
+            this.props.done()
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    } 
+
     render() {
         const { card } = this.state;
         return (
@@ -65,7 +81,7 @@ class CardInput extends Component {
                     <form onSubmit={this.onSubmit}>
                             <input
                                 type="text"
-                                name="card"
+                                name="count"
                                 value={card}
                                 maxLength="30"
                                 minLength="2"
@@ -75,10 +91,26 @@ class CardInput extends Component {
                     </form>
                 </div>
                 <StartGame startHandler={this.props.done} ready={this.state.count >= 3}/>
+                <div>
+                <div className="explainer">
+                    {/* TODO: Style this section and StartRandomGame */}
+                    <p>Can't think of any cards? Click here to make some:</p>
+                </div>
+                    <StartRandomGame startHandler={this.startRandomGame}/>
+                </div>           
             </div>
         );
     }
 }
+
+const StartRandomGame = ( {startHandler} ) => (
+    <div>
+        <button 
+            className="start-button"
+            onClick={startHandler}
+        >Give me some cards</button>
+    </div>
+)
 
 const StartGame = ({ startHandler, ready }) => (
     <div>

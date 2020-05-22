@@ -19,16 +19,16 @@ func NewRedisConnection(c *redis.Client) *conn {
 	}
 }
 
-// Repository is interface with methods to interact with redis db	
+// Repository is interface with methods to interact with redis db
 type Repository interface {
-    SaveNewGame(gameID, team1, team2 string) error
+	SaveNewGame(gameID, team1, team2 string) error
 	UpdateGame(game *Game) error
 	GetGame(gameID string) (game *Game, err error)
 }
 
 // conn is a struct holding the redis client
 type conn struct {
-    Client *redis.Client
+	Client *redis.Client
 }
 
 // SaveNewGame is used to initialize a new game
@@ -56,23 +56,22 @@ func (c conn) SaveNewGame(gameID, team1, team2 string) error {
 		fmt.Printf("Error marshalling new game %s: %v\n", gameID, err)
 		return err
 	}
-    err = c.Client.Set(gameID, game, ttl).Err()
-    if err != nil {
+	err = c.Client.Set(gameID, game, ttl).Err()
+	if err != nil {
 		fmt.Printf("Error saving game %s: %v\n", gameID, err)
-        return err
+		return err
 	}
 	return nil
 }
 
 func (c conn) GetGame(gameID string) (game *Game, err error) {
-    data, err := c.Client.Get(gameID).Result()
-    if err != nil {
+	data, err := c.Client.Get(gameID).Result()
+	if err != nil {
 		fmt.Printf("Game %s does not exist: %v\n", gameID, err)
 		return game, err
-    }
-
+	}
 	err = json.Unmarshal([]byte(data), &game)
-    if err != nil {
+	if err != nil {
 		fmt.Printf("Error marshalling game %s: %v\n", gameID, err)
 		return game, err
 	}
@@ -82,15 +81,15 @@ func (c conn) GetGame(gameID string) (game *Game, err error) {
 func (c conn) UpdateGame(game *Game) error {
 	gameID := game.ID
 	updatedGame, err := json.Marshal(game)
-    if err != nil {
+	if err != nil {
 		fmt.Printf("Error marshalling updated game %s: %v\n", gameID, err)
 		return err
 	}
 
-    err = c.Client.Set(gameID, updatedGame, ttl).Err()
-    if err != nil {
+	err = c.Client.Set(gameID, updatedGame, ttl).Err()
+	if err != nil {
 		fmt.Printf("Error saving game %v: %v\n", gameID, err)
 		return err
-    }
+	}
 	return nil
 }

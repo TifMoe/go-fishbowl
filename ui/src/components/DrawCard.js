@@ -18,6 +18,7 @@ class DrawCard extends Component {
             showCard: false,
             showNextRound: false,
             showSkip: true,
+            cardCount: 0,
         }
         this.drawCard = this.drawCard.bind(this);
         this.markDone = this.markDone.bind(this);
@@ -35,7 +36,8 @@ class DrawCard extends Component {
           // On page load find current team in play
           this.setState({
               team1: response.data.result[0].teams.team_1.name,
-              team2: response.data.result[0].teams.team_2.name
+              team2: response.data.result[0].teams.team_2.name,
+              cardCount: response.data.result[0].unused_cards
             })
         })
         .catch(function (error) {
@@ -53,8 +55,23 @@ class DrawCard extends Component {
         this.props.nextRound();
     }
 
+    getCardCount() {
+        axios({
+            method: 'get',
+            url: '/v1/api/game/' + this.props.gameId,
+            timeout: 1000,
+        })
+        .then((response) => {
+            this.setState({cardCount: response.data.result[0].unused_cards})
+        })
+        .catch(error => {
+            console.log(error);
+        });
+    }
+
     markDone() {
         // Mark current card as done
+        console.log(this.state.id)
         axios({
             method: 'patch',
             url: `/v1/api/game/${this.props.gameId}/card/${this.state.id}/used`,
@@ -62,6 +79,7 @@ class DrawCard extends Component {
           })
         .then((response) => {
             // Fetch new card
+            this.getCardCount()
             this.drawCard();
             this.props.updateState(response.data.result[0])
         })
@@ -81,6 +99,7 @@ class DrawCard extends Component {
         .then((response) => {
             const cards = response.data.result[0].cards;
             const cardCount = response.data.result[0].unused_cards
+            this.setState({cardCount: cardCount})
 
             if (cards && cards.length) {
                 if (cardCount === 1) {
@@ -163,6 +182,13 @@ class DrawCard extends Component {
         );
     }
 }
+
+const StatusIndicator = ({unusedCards}) => (
+    <div className="status-indicator">
+        <p>Unused Cards: {unusedCards}</p>
+    </div>
+)
+
 
 const Card = ({ card, showSkip, doneHandler, drawHandler }) => (
     <div className="card">

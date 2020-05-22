@@ -1,11 +1,11 @@
 package service
 
 import (
-    "encoding/json"
-    "fmt"
-	"io/ioutil"	
-	"path/filepath"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"path/filepath"
 	"time"
 )
 
@@ -16,11 +16,12 @@ func NewRandomService() RandomService {
 
 // RandomService is interface for collection of methods to draw random values
 type RandomService interface {
-    GetRandomCard(cards []Card) *Card
+	GetRandomCard(cards []Card) *Card
 	GetRandomWords() (string, error)
+	GetRandomNoun() (string, error)
 }
 
-type random struct {}
+type random struct{}
 
 // GetRandomCard is utility function to select a random card from a slice
 func (r *random) GetRandomCard(cards []Card) *Card {
@@ -41,21 +42,32 @@ func (r *random) GetRandomWords() (string, error) {
 	return adj + "-" + noun, nil
 }
 
+// TODO: simplify random logic into single function
+// GetRandomNoun is a utility function that picks a random noun
+func (r *random) GetRandomNoun() (string, error) {
+	words, err := readWords()
+	if err != nil {
+		return "", err
+	}
+	noun := randPicker(words.Nouns)
+	return noun, nil
+}
+
 func randPicker(words []string) string {
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	return words[rand.Intn(len(words))]
 }
 
 func readWords() (words *WordChoices, err error) {
 	// TODO store words in noSQL db when we create it
 	// read file from assets for now
-	absPath, _ := filepath.Abs("./assets/randwords.json")  // path from the working directory
+	absPath, _ := filepath.Abs("./assets/randwords.json") // path from the working directory
 	data, err := ioutil.ReadFile(absPath)
 	if err != nil {
 		fmt.Println("error:", err)
 		return
 	}
-	
+
 	// unmarshall data into word choices struct
 	err = json.Unmarshal(data, &words)
 	if err != nil {
