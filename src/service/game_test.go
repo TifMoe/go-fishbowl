@@ -258,7 +258,7 @@ func TestMarkCardUsedService(t *testing.T) {
 			mockRand := newMockRand(tc.gameID)
 			svc := NewGameService(mockRepo, mockRand, 10)
 
-			err := svc.MarkCardUsed(tc.gameID, tc.cardID)
+			_, err := svc.MarkCardUsed(tc.gameID, tc.cardID)
 			assert.Equal(t, tc.expectedError, err)
 		})
     }

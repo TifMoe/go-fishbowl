@@ -29,8 +29,12 @@ type GameService interface {
 
 	SaveCard(gameID string, card *CardInput) (string, error)
 	GetRandomCard(gameID string) (card *Card, err error)
+<<<<<<< HEAD
 	MakeRandomCards(gameID string, numCards int) (game *Game, err error)
 	MarkCardUsed(gameID, cardID string) error
+=======
+	MarkCardUsed(gameID, cardID string) (*Game, error)
+>>>>>>> f9d1865babbc83d1f03dc600a9a800e9cb036b61
 	ResetGame(gameID string) (*Game, error)
 	DeleteCards(gameID string) error
 }
@@ -216,11 +220,13 @@ func (s *service) GetRandomCard(gameID string) (card *Card, err error) {
 }
 
 // MarkCardUsed is service to update existing card to used and record the team responsible for the current round
-func (s *service) MarkCardUsed(gameID, cardID string) error {
-	gameDTO, err := s.Repo.GetGame(gameID)
-	if err != nil {
-		log.Printf("error fetching game %v: %v", gameID, err)
-		return err
+func (s *service) MarkCardUsed(gameID, cardID string) (*Game, error) {
+	var game *Game
+
+    gameDTO, err := s.Repo.GetGame(gameID)
+    if err != nil {
+        log.Printf("error fetching game %v: %v", gameID, err)
+        return game, err
 	}
 
 	var currentTeam *repository.Team
@@ -241,15 +247,16 @@ func (s *service) MarkCardUsed(gameID, cardID string) error {
 	}
 
 	if !found {
-		return fmt.Errorf("card %s not found in game %s", cardID, gameID)
+		return game, fmt.Errorf("card %s not found in game %s", cardID, gameID)
 	}
 
-	err = s.Repo.UpdateGame(gameDTO)
-	if err != nil {
-		log.Printf("error updating card %v: %v", cardID, err)
-		return err
+    err = s.Repo.UpdateGame(gameDTO)
+    if err != nil {
+        log.Printf("error updating card %v: %v", cardID, err)
+        return game, err
 	}
-	return nil
+	game = gameDTOtoInternal(gameDTO)
+    return game, nil
 }
 
 // ResetGame is service to reset game to default values including moving all cards to un-used state before starting fresh round
