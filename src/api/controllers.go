@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/tifmoe/go-fishbowl/src/service"
 	"log"
+
+	"github.com/tifmoe/go-fishbowl/src/service"
 )
 
 // NewGameController will instantiate a new game handler
