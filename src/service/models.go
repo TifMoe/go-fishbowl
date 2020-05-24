@@ -12,7 +12,8 @@ type WordChoices struct {
 
 // CardInput contains value for new card from game
 type CardInput struct {
-	Value string `json:"value" validate:"required,min=2,max=30"`
+	GameID string `json:"gameID" validate:"required"`
+	Value  string `json:"value" validate:"required,min=2,max=30"`
 }
 
 // IsEmpty will return true if Error struct does not contain something other than default
@@ -22,9 +23,10 @@ func (c CardInput) IsEmpty() bool {
 
 // GameInput contains value for updates to game data
 type GameInput struct {
-	Started   *bool `json:"started,omitempty"`
-	Round     *int  `json:"current_round,omitempty" validate:"max=5"`
-	Team1Turn *bool `json:"team_1_turn,omitempty"`
+	ID        string `json:"gameID" validate:"required"`
+	Started   *bool  `json:"started,omitempty"`
+	Round     *int   `json:"current_round,omitempty" validate:"max=5"`
+	Team1Turn *bool  `json:"team_1_turn,omitempty"`
 }
 
 // TeamInput contains value for team names

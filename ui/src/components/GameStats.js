@@ -1,49 +1,11 @@
 import React, { Component } from 'react'
 import Confetti from 'react-confetti'
-import axios from 'axios';
 import './GameStats.css';
 
 class GameStats extends Component {
 
-    constructor() {
-        super();
-        this.state = {
-            team1: {
-                name: "",
-                round_1_pts: 0,
-                round_2_pts: 0,
-                round_3_pts: 0,
-                round_4_pts: 0
-            },
-            team2: {
-                name: "",
-                round_1_pts: 0,
-                round_2_pts: 0,
-                round_3_pts: 0,
-                round_4_pts: 0
-            },
-        }
-    }
-
-    componentDidMount() {
-        axios({
-            method: 'get',
-            url: `/v1/api/game/${this.props.gameId}`,
-            timeout: 4000,    // 4 seconds timeout
-            })
-        .then((response) => {
-            this.setState({ 
-                team1: response.data.result[0].teams.team_1,
-                team2: response.data.result[0].teams.team_2 
-            })
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
-    }
-
     render() {
-        const declareWinner = GetWinner(this.state.team1, this.state.team2)
+        const declareWinner = GetWinner(this.props.gameState.team1, this.props.gameState.team2)
         return (
             <div>
                 {declareWinner}

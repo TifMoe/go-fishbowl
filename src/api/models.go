@@ -5,6 +5,17 @@ import (
 	"github.com/tifmoe/go-fishbowl/src/service"
 )
 
+// GameInput is required input for event to request state from game
+type GameInput struct {
+	ID string `json:"gameID"`
+}
+
+// CardUsedInput is required input for event to mark card as used
+type CardUsedInput struct {
+	GameID string `json:"gameID"`
+	CardID string `json:"cardID"`
+}
+
 // apiResponse contains status code and json response to be served by API
 type apiResponse struct {
 	Status int

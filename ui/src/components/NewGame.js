@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import axios from 'axios';
+import Socket from '../Socket';
 
 import './NewGame.css';
 
@@ -8,6 +8,7 @@ class NewGame extends Component {
     constructor() {
         super();
         this.state = {
+            connected: false,
             gameName: 'pending',
             team1: "",
             team2: "",
@@ -15,6 +16,23 @@ class NewGame extends Component {
         }
         this.onSubmit = this.onSubmit.bind(this);
         this.routeChange = this.routeChange.bind(this);
+        this.newGame = this.newGame.bind(this);
+    }
+
+
+    componentDidMount() {
+        let socket = this.socket = new Socket();
+    
+        socket.on('connect', this.onConnect);
+        socket.on('disconnect', this.onDisconnect);
+    
+        /* EVENT LISTENERS */
+        socket.on('newGame', this.newGame);
+    }
+
+    componentWillUnmount() {
+        console.log("Signing off connection from new game!")
+        this.onDisconnect();
     }
 
     onChange = (e) => {
@@ -29,28 +47,40 @@ class NewGame extends Component {
         this.props.history.push(path)
     }
 
+    // onConnect sets the state to true indicating the socket has connected 
+    //    successfully.
+    onConnect = () => {
+        console.log("Connected to websocket!!")
+        this.setState({connected: true});
+    }
+  
+    // onDisconnect sets the state to false indicating the socket has been 
+    //    disconnected.
+    onDisconnect = () => {
+        this.setState({connected: false});
+    }
+  
+
+    newGame = (data) =>{
+        this.setState(() => {
+            return { gameName: data }
+        });
+        this.routeChange();
+    }
+
     onSubmit(e) {
         e.preventDefault();
         // Save team names and fetch new game namespace
         if (this.state.team1 !== "" && this.state.team2 !== "") {
-            axios({
-                method: 'post',
-                url: 'v1/api/game',
-                timeout: 4000,    // 4 seconds timeout
-                data: {
+                let data = JSON.stringify({
                     team_1: capitalize(this.state.team1),
                     team_2: capitalize(this.state.team2),
-                }
-              })
-            .then((response) => {
-                this.setState(() => {
-                    return { gameName: response.data.message }
                 });
-                this.routeChange();
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+                console.log("Sending team names to server: ", data)
+                this.socket.emit('newGame', data);
+        } else {
+            // TODO: We should raise input validation error here
+            console.log("Team names are required to start a new game!");
         }
       }
 

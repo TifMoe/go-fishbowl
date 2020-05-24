@@ -69,21 +69,21 @@ func TestSaveCardService(t *testing.T) {
 	tests := []test{
 		{
 			name:          "request to save new card succeeds",
-			newCard:       &CardInput{Value: "new-value"},
+			newCard:       &CardInput{GameID: "test-game", Value: "new-value"},
 			gameID:        "two-cards",
 			maxCards:      30,
 			expectedError: nil,
 		},
 		{
 			name:          "request to save new card fails if max cards already exist",
-			newCard:       &CardInput{Value: "new-value"},
+			newCard:       &CardInput{GameID: "test-game", Value: "new-value"},
 			gameID:        "two-cards",
 			maxCards:      2,
 			expectedError: fmt.Errorf("game already has maximum number of cards"),
 		},
 		{
 			name:          "request to save new card fails if game does not exist",
-			newCard:       &CardInput{Value: "new-value"},
+			newCard:       &CardInput{GameID: "test-game", Value: "new-value"},
 			gameID:        "error",
 			maxCards:      10,
 			expectedError: fmt.Errorf("game error does not exist"),
@@ -96,22 +96,29 @@ func TestSaveCardService(t *testing.T) {
 			expectedError: fmt.Errorf("invalid card input"),
 		},
 		{
-			name:          "request to save new card fails if value exceeds max char number",
-			newCard:       &CardInput{Value: "exceedingly verbose individual enters in a card value which is far too long"},
+			name:          "request to save new card fails if game ID is not provided",
+			newCard:       &CardInput{Value: "this-should-fail"},
 			gameID:        "two-cards",
 			maxCards:      10,
 			expectedError: fmt.Errorf("invalid card input"),
 		},
 		{
 			name:          "request to save new card fails if value exceeds max char number",
-			newCard:       &CardInput{Value: "exceedingly verbose individual enters in a card value which is far too long"},
+			newCard:       &CardInput{GameID: "test-game", Value: "exceedingly verbose individual enters in a card value which is far too long"},
+			gameID:        "two-cards",
+			maxCards:      10,
+			expectedError: fmt.Errorf("invalid card input"),
+		},
+		{
+			name:          "request to save new card fails if value exceeds max char number",
+			newCard:       &CardInput{GameID: "test-game", Value: "exceedingly verbose individual enters in a card value which is far too long"},
 			gameID:        "two-cards",
 			maxCards:      10,
 			expectedError: fmt.Errorf("invalid card input"),
 		},
 		{
 			name:          "request to save new card fails if game could not be updated",
-			newCard:       &CardInput{Value: "valid-input"},
+			newCard:       &CardInput{GameID: "test-game", Value: "valid-input"},
 			gameID:        "update-error",
 			maxCards:      10,
 			expectedError: fmt.Errorf("error updateing game with new card"),
@@ -263,7 +270,7 @@ func TestMarkCardUsedService(t *testing.T) {
 	}
 }
 
-func TestResetGameService(t *testing.T) {
+func TestStartRoundService(t *testing.T) {
 
 	type test struct {
 		name          string
@@ -306,7 +313,7 @@ func TestResetGameService(t *testing.T) {
 			mockRand := newMockRand(tc.gameID)
 			svc := NewGameService(mockRepo, mockRand, 10)
 
-			game, err := svc.ResetGame(tc.gameID)
+			game, err := svc.StartRound(tc.gameID)
 			assert.Equal(t, tc.expectGame, game)
 			assert.Equal(t, tc.expectedError, err)
 		})

@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import Timer from './Timer';
 
-import axios from 'axios';
-
 import './DrawCard.css';
 import rules from './../gameRules.json';
 
@@ -26,89 +24,109 @@ class DrawCard extends Component {
     }
 
     componentDidMount() {
-        axios({
-            method: 'get',
-            url: `/v1/api/game/${this.props.gameId}`,
-            timeout: 4000,    // 4 seconds timeout
-          })
-        .then((response) => {
-          // On page load find current team in play
-          this.setState({
-              team1: response.data.result[0].teams.team_1.name,
-              team2: response.data.result[0].teams.team_2.name
-            })
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        // EVENT LISTENERS //
+        this.props.socket.on('randomCard', this.randomCard);
       }
 
-    endTurn() {
-        this.setState({showCard: false});
-        this.props.nextTurn();
-    }
+    // Event listener for new random card draw
+    randomCard = (data) => {
+        let response = JSON.parse(data)
 
-    endRound() {
-        this.setState({showNextRound: false})
-        this.props.nextRound();
-    }
+        const cards = response.cards;
+        const cardCount = response.unused_cards
 
-    markDone() {
-        // Mark current card as done
-        axios({
-            method: 'patch',
-            url: `/v1/api/game/${this.props.gameId}/card/${this.state.id}/used`,
-            timeout: 4000,    // 4 seconds timeout
-          })
-        .then((response) => {
-            // Fetch new card
-            this.drawCard();
-            this.props.updateState(response.data.result[0])
-        })
-        .catch(function (error) {
-            console.log(error);
-        });
+        if (cards && cards.length) {
+            if (cardCount === 1) {
+                this.setState({ showSkip: false })
+            } else {
+                this.setState({ showSkip: true })
+            }
+
+            // Show new card
+            this.setState(() => {
+                return { card: cards[0].value,
+                    id: cards[0].id,
+                    showCard: true,
+                }
+            })
+        } else {
+            // If no cards, end turn and show next round button
+            this.endTurn();
+            this.setState({showNextRound: true})
+        }
     }
 
     drawCard() {
         this.setState({showNextRound: false})
+        this.getRandomCard()
+    }
 
-        axios({
-            method: 'get',
-            url: `/v1/api/game/${this.props.gameId}/card/random`,
-            timeout: 4000,    // 4 seconds timeout
-          })
-        .then((response) => {
-            const cards = response.data.result[0].cards;
-            const cardCount = response.data.result[0].unused_cards
+    endTurn() {
+        this.setState({showCard: false});
+        this.nextTurn();
+    }
 
-            if (cards && cards.length) {
-                if (cardCount === 1) {
-                    this.setState({ showSkip: false })
-                } else {
-                    this.setState({ showSkip: true })
-                }
+    endRound() {
+        this.setState({showNextRound: false})
+        this.startNextRound();
+    }
 
-                // Show new card
-                this.setState(() => {
-                    return { card: cards[0].value,
-                        id: cards[0].id,
-                        showCard: true,
-                    }
-                })
-            } else {
-                // If no cards, end turn and show next round button
-                this.endTurn();
-                this.setState({showNextRound: true})
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
+    // EVENT EMMITTERS //
+    // startNextRound is an event emitter that tells the backend to start a new round
+    startNextRound = () => {
+        let data = JSON.stringify({
+            gameID: this.props.gameId
         });
+        console.log('Starting round ', this.props.gameId);
+        this.props.socket.emit('startRound', data);
+    }
+
+    // getRandomCard is an event emitter to request a random card from the backend
+    getRandomCard = () => {
+        let data = JSON.stringify({
+            gameID: this.props.gameId
+        });
+        console.log('Sequesting new random card...');
+        this.props.socket.emit('getRandomCard', data);
+    }
+
+    // markDone is an event emitter to mark a card as used in the current round
+    markDone() {
+        // Mark current card as done
+        let data = JSON.stringify({
+            gameID: this.props.gameId,
+            cardID: this.state.id
+        });
+        console.log('Marking as used: ', this.state.id);
+        this.props.socket.emit('usedCard', data);
+
+        // Fetch new card
+        this.drawCard();
+    }
+
+    // nextTurn is event emitter to tell backend about an update to the game
+    nextTurn = () => {
+        let data = JSON.stringify({
+            gameID: this.props.gameId,
+            team_1_turn: !this.props.gameState.team_1_turn,
+            current_round: this.props.gameState.round
+        });
+        console.log('Updating for next turn: Game ', this.props.gameId);
+        this.props.socket.emit('updateGame', data);
+    }
+
+    // endGame is event emitter to tell backend to force end the game
+    endGame = () => {
+        let data = JSON.stringify({
+            gameID: this.props.gameId,
+            current_round: 5
+        });
+        console.log('Force ending game ', this.props.gameId);
+        this.props.socket.emit('updateGame', data);
     }
 
     render() {
-        const team = this.props.gameState.team_1_turn ? this.state.team1 : this.state.team2;
+        const team = this.props.gameState.team_1_turn ? this.props.gameState.team1.name : this.props.gameState.team2.name;
         const color = this.props.gameState.team_1_turn ?  "rgb(242, 85, 119, .7)":  "rgb(46, 221, 204, .7)";
         const round = this.props.gameState.round
 
@@ -157,7 +175,7 @@ class DrawCard extends Component {
                     nextHandler={this.endRound}/>
                 <EndGame
                     active={this.state.showNextRound}
-                    endHandler={this.props.endGame}/>
+                    endHandler={this.endGame}/>
             </div>
         </div>
         );
