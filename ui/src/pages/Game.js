@@ -1,5 +1,5 @@
 import React,  { Component } from 'react';
-import axios from 'axios';
+import Socket from '../Socket';
 
 import CardInput from '../components/CardInput';
 import GameTagHeader from '../components/GameTagHeader';
@@ -14,39 +14,34 @@ import './Game.css';
 
 class GamePage extends Component {
 
-  constructor() {
-      super();
+  constructor(props) {
+      super(props);
+      this.gameId = this.props.match.params.gameId
+      this.socket = new Socket(this.gameId);
       this.state = {
+          connected: false,
           ready: false,
           round: 0,
           team_1_turn: true,
           unused_cards: 0,
-          team: "",
           team1: {
+            name: "Team 1",
             round_1_pts: 0,
             round_2_pts: 0,
             round_3_pts: 0,
             round_4_pts: 0,
           },
           team2: {
+            name: "Team 2",
             round_1_pts: 0,
             round_2_pts: 0,
             round_3_pts: 0,
             round_4_pts: 0,
           }
       }
-      this.saveState = this.saveState.bind(this);
-      this.startGame = this.startGame.bind(this);
-      this.endGame = this.endGame.bind(this);
-      this.nextTurn = this.nextTurn.bind(this);
-      this.componentSwitch = this.componentSwitch.bind(this);
   }
 
-  saveState(data) {
-    let team1 = data.teams.team_1.name
-    let team2 = data.teams.team_2.name
-    let currentTeam = data.team_1_turn ? team1 : team2
-
+  saveState = (data) => {
     this.setState({
       team1: data.teams.team_1,
       team2: data.teams.team_2,
@@ -54,78 +49,55 @@ class GamePage extends Component {
       ready: data.started,
       round: data.current_round,
       unused_cards: data.unused_cards,
-      team: currentTeam
     })
   }
 
-  componentDidMount() {
-    const { params: { gameId } } = this.props.match;
-    axios({
-        method: 'get',
-        url: `/v1/api/game/${gameId}`,
-        timeout: 4000,    // 4 seconds timeout
-      })
-    .then((response) => {
-      this.saveState(response.data.result[0])
-    })
-    .catch(function (error) {
-        console.log(error);
+  componentDidMount = () => {
+    console.log("Setting up component")
+
+    // handle connect and disconnect events.
+    this.socket.on('connect', this.onConnect);
+    this.socket.on('disconnect', this.onDisconnect); 
+
+    /* EVENT LISTENERS */
+    this.socket.on('cardCount', this.cardCount);
+    this.socket.on('gameState', this.gameState)
+  }
+
+  // onConnect sets the state to true indicating the socket has connected successfully
+  onConnect = () => {
+      console.log("Connected!")
+      this.setState({connected: true});
+      this.getGame()
+  }
+
+  // onDisconnect sets the state to false indicating the socket has been disconnected
+  onDisconnect = () => {
+      this.setState({connected: false});
+  }
+
+  // cardCount is an event listener for updates to the card count
+  cardCount = (data) => {
+      this.setState({unused_cards: data})
+  }
+
+  // gameState is an event listener for updates to the game state
+  gameState = (data) => {
+      this.saveState(JSON.parse(data))
+  }
+
+
+  // EVENT EMITTER //
+  // getGame is an event emitter to request game state on socket connection
+  getGame = () => {
+    let data = JSON.stringify({
+        gameID: this.gameId
     });
+    console.log('Fetching state for ', this.gameId);
+    this.socket.emit('getGame', data);
   }
 
-  startGame() {
-    const { params: { gameId } } = this.props.match;
-    axios({
-        method: 'put',
-        url: `/v1/api/game/${gameId}/start`,
-        timeout: 4000,    // 4 seconds timeout
-      })
-    .then((response) => {
-      this.saveState(response.data.result[0])
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-  }
-
-  endGame() {
-    const { params: { gameId } } = this.props.match;
-    axios({
-        method: 'patch',
-        url: `/v1/api/game/${gameId}`,
-        timeout: 4000,    // 4 seconds timeout
-        data: {
-            current_round: 5 // Forces end of game
-        }
-      })
-    .then((response) => {
-      this.saveState(response.data.result[0])
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-  }
-
-  nextTurn() {
-    const { params: { gameId } } = this.props.match;
-    axios({
-      method: 'patch',
-      url: `/v1/api/game/${gameId}`,
-      timeout: 4000,    // 4 seconds timeout
-      data: {
-          team_1_turn: !this.state.team_1_turn,
-          current_round: this.state.round,
-      }
-    })
-    .then((response) => {
-        this.saveState(response.data.result[0])
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-  }
-
-  componentSwitch(gameId) {
+  componentSwitch = (socket) => {
     var title;
     var leftComponent;
     var rightComponent;
@@ -134,17 +106,17 @@ class GamePage extends Component {
       // Initial game setup
       case 0:
         title = <h2>Enter nouns below to get started!</h2>;
-        leftComponent = <CardInput gameId={gameId} done={this.startGame}/>;
+        leftComponent = <CardInput gameId={this.gameId} socket={socket}/>;
         break
       case 5: // Force end of game
         title = <h2>Congratulations!!</h2>;
-        leftComponent = <GameStats gameId={gameId}/>;
+        leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
         break
       // Transition to Game Stats page at the end of round 4
       case 4:
         if (this.state.unused_cards === 0) { // Natural end of game
           title = <h2>Congratulations!!</h2>;
-          leftComponent = <GameStats gameId={gameId}/>;
+          leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
           break
         }
         // fallthrough
@@ -152,12 +124,9 @@ class GamePage extends Component {
           title = <RoundTracker round={this.state.round} team1={this.state.team1} team2={this.state.team2}/>;
           leftComponent = <div>
               <DrawCard
-                gameId={gameId}
+                gameId={this.gameId}
+                socket={socket}
                 gameState={this.state}
-                updateState={this.saveState}
-                nextRound={this.startGame}
-                nextTurn={this.nextTurn}
-                endGame={this.endGame}
               />
             </div>;
           rightComponent = <ScoreKeeper team1={this.state.team1} team2={this.state.team2}/>;
@@ -171,12 +140,11 @@ class GamePage extends Component {
   }
 
   render() {
-      const { params: { gameId } } = this.props.match;
-      const element  = this.componentSwitch(gameId)
+      const element  = this.componentSwitch(this.socket)
 
       return (
         <div className="Game-page">
-          <GameTagHeader gameId={gameId}/>
+          <GameTagHeader gameId={this.gameId}/>
 
           <div className="row">
             <div className="title">{element.title}</div>

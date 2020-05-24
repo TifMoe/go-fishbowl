@@ -1,22 +1,18 @@
 package api
 
 import (
-	"github.com/tifmoe/go-fishbowl/src/errors"
 	"github.com/tifmoe/go-fishbowl/src/service"
 )
 
-// apiResponse contains status code and json response to be served by API
-type apiResponse struct {
-	Status int
-	Data   *Response
+// GameInput is required input for event to request state from game
+type GameInput struct {
+	ID string `json:"gameID"`
 }
 
-// Response contains json response
-type Response struct {
-	Result  []Game         `json:"result"`
-	Success bool           `json:"success"`
-	Error   []errors.Error `json:"error"`
-	Message string         `json:"message"`
+// CardUsedInput is required input for event to mark card as used
+type CardUsedInput struct {
+	GameID string `json:"gameID"`
+	CardID string `json:"cardID"`
 }
 
 // Game contains data a specific game session

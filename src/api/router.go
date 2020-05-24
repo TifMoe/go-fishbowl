@@ -1,46 +1,85 @@
 package api
 
 import (
+	"log"
 	"net/http"
-	"path/filepath"
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 )
 
-const (
-	staticPath = "./web"
-	indexPath  = "index.html"
-)
+// NewRouter will build a new router for the websocket connection
+func NewRouter(p *Pool, c GameController) *WebSocketRouter {
 
-// NewRouter will build a new router for the routes defined below
-func NewRouter(c GameController) *mux.Router {
+	wsr := NewWebSocketRouter(p)
+	wsr.Handle("newGame", c.NewGame)
+	wsr.Handle("getGame", c.GetGame)
+	wsr.Handle("updateGame", c.UpdateGame)
+	wsr.Handle("resetGame", c.ResetGame)
+	wsr.Handle("startRound", c.StartRound)
 
-	r := mux.NewRouter()
+	wsr.Handle("newCard", c.NewCard)
+	wsr.Handle("usedCard", c.MarkCardUsed)
+	wsr.Handle("getRandomCard", c.GetRandomCard)
 
-	// Serve API routes
-	api := r.PathPrefix("/v1/api/").Subrouter()
-	// Game resource
-	api.HandleFunc("/game", c.NewGame).Methods("POST")
-	api.HandleFunc("/game/{gameID}", c.GetGame).Methods("GET")
-	api.HandleFunc("/game/{gameID}", c.UpdateGame).Methods("PATCH")
-	api.HandleFunc("/game/{gameID}", c.ResetGame).Methods("DELETE")
-	api.HandleFunc("/game/{gameID}/start", c.StartRound).Methods("PUT") // initiates a new round with default values
+	return wsr
+}
 
-	// Card resource
-	api.HandleFunc("/game/{gameID}/card", c.NewCard).Methods("POST")
-	api.HandleFunc("/game/{gameID}/card/{cardID}/used", c.MarkCardUsed).Methods("PATCH") // marks single card as used
-	api.HandleFunc("/game/{gameID}/card/random", c.GetRandomCard).Methods("GET")         // returns a random un-used card
+// Handler is a type representing functions which resolve requests.
+type Handler func(*Client, interface{})
 
-	// Serve Frontend routes
-	// For requests to dynamically generated game pages, serve index.html
-	r.PathPrefix("/game/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(staticPath, indexPath))
-	})
+// Event is a type representing request names.
+type Event string
 
-	// Serve static build on root requests
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticPath)))
+// WebSocketRouter is a message routing object mapping events to function handlers.
+type WebSocketRouter struct {
+	rules map[Event]Handler // rules maps events to functions.
+	pool  *Pool
+}
 
-	// TODO - Figure out how to serve styled 404 page for unhandled paths
+// NewWebSocketRouter returns an initialized Router.
+func NewWebSocketRouter(p *Pool) *WebSocketRouter {
+	return &WebSocketRouter{
+		rules: make(map[Event]Handler),
+		pool:  p,
+	}
+}
 
-	return r
+// ServeHTTP creates the socket connection and begins the read routine.
+func (rt *WebSocketRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	// configure upgrader
+	upgrader := websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		// TODO: don't accept all by default
+		CheckOrigin: func(r *http.Request) bool { return true },
+	}
+
+	// upgrade connection to socket
+	socket, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Printf("socket server configuration error: %v\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	clientGroup := r.URL.String()[1:]
+	client := NewClient(clientGroup, rt.pool, socket, rt.FindHandler)
+	rt.pool.Register <- client
+
+	// running method for reading from sockets, in main routine
+	client.Read()
+}
+
+// FindHandler implements a handler finding function for router.
+func (rt *WebSocketRouter) FindHandler(event Event) (Handler, bool) {
+	handler, found := rt.rules[event]
+	return handler, found
+}
+
+// Handle is a function to add handlers to the router.
+func (rt *WebSocketRouter) Handle(event Event, handler Handler) {
+	// store in to router rules
+	rt.rules[event] = handler
+
 }

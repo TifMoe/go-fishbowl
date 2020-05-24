@@ -3,12 +3,19 @@ package main
 import (
 	"log"
 	"net/http"
+	"path/filepath"
 
 	"github.com/go-redis/redis"
+	"github.com/gorilla/mux"
 
 	"github.com/tifmoe/go-fishbowl/src/api"
 	"github.com/tifmoe/go-fishbowl/src/repository"
 	"github.com/tifmoe/go-fishbowl/src/service"
+)
+
+const (
+	staticPath = "./web"
+	indexPath  = "index.html"
 )
 
 func main() {
@@ -39,9 +46,23 @@ func main() {
 	rand := service.NewRandomService()
 	svc := service.NewGameService(repo, rand, maxCards)
 
-	// Instantiate controllers and router
+	// Instantiate backend controllers and websocket router
 	handlers := api.NewGameController(svc)
-	router := api.NewRouter(handlers)
+	pool := api.NewPool()
+	go pool.Start()
+
+	router := api.NewRouter(pool, handlers)
+	http.Handle("/v1/api/", router)
+
+	// Serve Frontend routes
+	r := mux.NewRouter()
+	// For requests to dynamically generated game pages, serve index.html
+	r.PathPrefix("/game/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join(staticPath, indexPath))
+	})
+	// Serve static build on root requests
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticPath)))
+	// TODO - Figure out how to serve styled 404 page for unhandled paths
 
 	// Run
 	if err := http.ListenAndServe(":"+appPort, router); err != nil {
