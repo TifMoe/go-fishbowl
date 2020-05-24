@@ -6,7 +6,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Message is a object used to pass data on sockets.
+// Envelope is a object used to pass data on sockets from specific clients.
+type Envelope struct {
+	ClientID string  `json:"client"`
+	Message  Message `json:"message"`
+}
+
+// Message contains event contents
 type Message struct {
 	Name string      `json:"name"`
 	Data interface{} `json:"data"`
@@ -17,23 +23,27 @@ type FindHandler func(Event) (Handler, bool)
 
 // Client is a type that reads and writes on sockets.
 type Client struct {
-	send        Message
+	id          string
+	send        Envelope
 	socket      *websocket.Conn
 	findHandler FindHandler
+	pool        *Pool
 }
 
 // NewClient accepts a socket and returns an initialized Client.
-func NewClient(socket *websocket.Conn, findHandler FindHandler) *Client {
+func NewClient(id string, p *Pool, socket *websocket.Conn, findHandler FindHandler) *Client {
 	return &Client{
+		id:          id,
 		socket:      socket,
 		findHandler: findHandler,
+		pool:        p,
 	}
 }
 
 // Write receives messages from the channel and writes to the socket.
 func (c *Client) Write() {
 	msg := c.send
-	err := c.socket.WriteJSON(msg)
+	err := c.socket.WriteJSON(msg.Message)
 	if err != nil {
 		log.Printf("socket write error: %v\n", err)
 	}
@@ -42,6 +52,12 @@ func (c *Client) Write() {
 // Read intercepts messages on the socket and assigns them to a handler function.
 func (c *Client) Read() {
 	var msg Message
+
+	defer func() {
+		c.pool.Unregister <- c
+		c.socket.Close()
+	}()
+
 	for {
 		log.Printf("Reading message from client!")
 		// read incoming message from socket

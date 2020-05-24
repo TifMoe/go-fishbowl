@@ -8,9 +8,9 @@ import (
 )
 
 // NewRouter will build a new router for the websocket connection
-func NewRouter(c GameController) *WebSocketRouter {
+func NewRouter(p *Pool, c GameController) *WebSocketRouter {
 
-	wsr := NewWebSocketRouter()
+	wsr := NewWebSocketRouter(p)
 	wsr.Handle("newGame", c.NewGame)
 	wsr.Handle("getGame", c.GetGame)
 	wsr.Handle("updateGame", c.UpdateGame)
@@ -33,17 +33,20 @@ type Event string
 // WebSocketRouter is a message routing object mapping events to function handlers.
 type WebSocketRouter struct {
 	rules map[Event]Handler // rules maps events to functions.
+	pool  *Pool
 }
 
 // NewWebSocketRouter returns an initialized Router.
-func NewWebSocketRouter() *WebSocketRouter {
+func NewWebSocketRouter(p *Pool) *WebSocketRouter {
 	return &WebSocketRouter{
 		rules: make(map[Event]Handler),
+		pool:  p,
 	}
 }
 
 // ServeHTTP creates the socket connection and begins the read routine.
 func (rt *WebSocketRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
 	// configure upgrader
 	upgrader := websocket.Upgrader{
 		ReadBufferSize:  1024,
@@ -60,7 +63,9 @@ func (rt *WebSocketRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := NewClient(socket, rt.FindHandler)
+	clientGroup := r.URL.String()[1:]
+	client := NewClient(clientGroup, rt.pool, socket, rt.FindHandler)
+	rt.pool.Register <- client
 
 	// running method for reading from sockets, in main routine
 	client.Read()

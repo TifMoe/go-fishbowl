@@ -14,9 +14,10 @@ import './Game.css';
 
 class GamePage extends Component {
 
-  constructor() {
-      super();
-      this.socket = new Socket();
+  constructor(props) {
+      super(props);
+      this.gameId = this.props.match.params.gameId
+      this.socket = new Socket(this.gameId);
       this.state = {
           connected: false,
           ready: false,
@@ -53,8 +54,6 @@ class GamePage extends Component {
 
   componentDidMount = () => {
     console.log("Setting up component")
-    const { params: { gameId } } = this.props.match
-    this.gameId = gameId
 
     // handle connect and disconnect events.
     this.socket.on('connect', this.onConnect);

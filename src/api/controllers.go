@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	"log"
-
+	"fmt"
 	"github.com/tifmoe/go-fishbowl/src/service"
+	"log"
 )
 
 // NewGameController will instantiate a new game handler
@@ -50,7 +50,9 @@ func (c *controller) NewGame(cl *Client, data interface{}) {
 		return
 	}
 
-	cl.send = Message{Name: "newGame", Data: nameSpace}
+	cl.send = Envelope{
+		Message: Message{Name: "newGame", Data: nameSpace},
+	}
 	cl.Write()
 }
 
@@ -79,8 +81,11 @@ func (c *controller) UpdateGame(cl *Client, data interface{}) {
 		return
 	}
 
-	cl.send = Message{Name: "gameState", Data: string(gameData)}
-	cl.Write()
+	message := Envelope{
+		ClientID: input.ID,
+		Message:  Message{Name: "gameState", Data: string(gameData)},
+	}
+	cl.pool.Broadcast <- message
 }
 
 // NewCard is controller for saving a new card to the existing game
@@ -100,9 +105,11 @@ func (c *controller) NewCard(cl *Client, data interface{}) {
 		// TODO discern validation and not-found errors, return in message
 		return
 	}
-
-	cl.send = Message{Name: "cardCount", Data: cardCount}
-	cl.Write()
+	message := Envelope{
+		ClientID: card.GameID,
+		Message:  Message{Name: "cardCount", Data: cardCount},
+	}
+	cl.pool.Broadcast <- message
 }
 
 // GetGame is controller for fetching a specific game
@@ -129,9 +136,11 @@ func (c *controller) GetGame(cl *Client, data interface{}) {
 		// TODO serve error message
 		return
 	}
-
-	cl.send = Message{Name: "gameState", Data: string(gameData)}
-	cl.Write()
+	message := Envelope{
+		ClientID: game.ID,
+		Message:  Message{Name: "gameState", Data: string(gameData)},
+	}
+	cl.pool.Broadcast <- message
 }
 
 // GetRandomCard is controller to return a random un-used card for a specific game
@@ -174,7 +183,9 @@ func (c *controller) GetRandomCard(cl *Client, data interface{}) {
 		return
 	}
 
-	cl.send = Message{Name: "randomCard", Data: string(gameData)}
+	cl.send = Envelope{
+		Message: Message{Name: "randomCard", Data: string(gameData)},
+	}
 	cl.Write()
 }
 
@@ -202,8 +213,11 @@ func (c *controller) MarkCardUsed(cl *Client, data interface{}) {
 		// TODO serve error message
 		return
 	}
-	cl.send = Message{Name: "gameState", Data: string(gameData)}
-	cl.Write()
+	message := Envelope{
+		ClientID: input.GameID,
+		Message:  Message{Name: "gameState", Data: string(gameData)},
+	}
+	cl.pool.Broadcast <- message
 }
 
 // StartRound is controller to start a new round of the game by setting all cards to un-used state
@@ -230,9 +244,11 @@ func (c *controller) StartRound(cl *Client, data interface{}) {
 		// TODO serve error message
 		return
 	}
-
-	cl.send = Message{Name: "gameState", Data: string(gameData)}
-	cl.Write()
+	message := Envelope{
+		ClientID: game.ID,
+		Message:  Message{Name: "gameState", Data: string(gameData)},
+	}
+	cl.pool.Broadcast <- message
 }
 
 // ResetGame is controller to delete all cards for a given game
@@ -266,7 +282,9 @@ func (c *controller) ResetGame(cl *Client, data interface{}) {
 		// TODO serve error message
 		return
 	}
-
-	cl.send = Message{Name: "gameState", Data: string(gameData)}
-	cl.Write()
+	message := Envelope{
+		ClientID: game.ID,
+		Message:  Message{Name: "gameState", Data: string(gameData)},
+	}
+	cl.pool.Broadcast <- message
 }

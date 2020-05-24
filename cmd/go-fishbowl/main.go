@@ -48,7 +48,10 @@ func main() {
 
 	// Instantiate backend controllers and websocket router
 	handlers := api.NewGameController(svc)
-	router := api.NewRouter(handlers)
+	pool := api.NewPool()
+	go pool.Start()
+
+	router := api.NewRouter(pool, handlers)
 	http.Handle("/v1/api/", router)
 
 	// Serve Frontend routes
