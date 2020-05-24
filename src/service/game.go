@@ -67,10 +67,6 @@ func (s *service) MakeRandomCards(gameID string, numCards int) (game *Game, err 
 			}
 		}
 
-		if err != nil {
-			log.Printf("error getting random noun: %v", err)
-			return &Game{}, err
-		}
 		log.Printf("New card added: %s", words[i])
 		cards[i] = repository.Card{
 			ID:    uuid.New().String(),
