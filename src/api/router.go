@@ -3,6 +3,7 @@ package api
 import (
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -63,7 +64,7 @@ func (rt *WebSocketRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	clientGroup := r.URL.String()[1:]
+	clientGroup := strings.Split(r.URL.String(), "/ws/")[1]
 	client := NewClient(clientGroup, rt.pool, socket, rt.FindHandler)
 	rt.pool.Register <- client
 
