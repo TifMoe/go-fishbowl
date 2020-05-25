@@ -50,12 +50,12 @@ func main() {
 	handlers := api.NewGameController(svc)
 	pool := api.NewPool()
 	go pool.Start()
+	wsRouter := api.NewRouter(pool, handlers)
 
-	router := api.NewRouter(pool, handlers)
-	http.Handle("/v1/api/", router)
+	r := mux.NewRouter()
+	r.PathPrefix("/ws/").Handler(wsRouter)
 
 	// Serve Frontend routes
-	r := mux.NewRouter()
 	// For requests to dynamically generated game pages, serve index.html
 	r.PathPrefix("/game/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, filepath.Join(staticPath, indexPath))
@@ -65,7 +65,7 @@ func main() {
 	// TODO - Figure out how to serve styled 404 page for unhandled paths
 
 	// Run
-	if err := http.ListenAndServe(":"+appPort, router); err != nil {
+	if err := http.ListenAndServe(":"+appPort, r); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
 }

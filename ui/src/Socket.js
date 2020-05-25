@@ -6,7 +6,7 @@ import {EventEmitter} from 'events';
 export default class Socket {
     constructor(id = "new-game") {
         console.log("New websocket!")
-        let ws = this.ws = new WebSocket(`ws://localhost:8080/${id}`);
+        let ws = this.ws = new WebSocket(`ws://localhost:8080/ws/${id}`);
         this.ee = new EventEmitter();
         // attach message function as event listener for incoming websocket messages.
         ws.onmessage = this.message.bind(this);
