@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"path/filepath"
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
@@ -11,11 +10,6 @@ import (
 	"github.com/tifmoe/go-fishbowl/src/api"
 	"github.com/tifmoe/go-fishbowl/src/repository"
 	"github.com/tifmoe/go-fishbowl/src/service"
-)
-
-const (
-	staticPath = "./web"
-	indexPath  = "index.html"
 )
 
 func main() {
@@ -54,15 +48,6 @@ func main() {
 
 	r := mux.NewRouter()
 	r.PathPrefix("/ws/").Handler(wsRouter)
-
-	// Serve Frontend routes
-	// For requests to dynamically generated game pages, serve index.html
-	r.PathPrefix("/game/").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(staticPath, indexPath))
-	})
-	// Serve static build on root requests
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir(staticPath)))
-	// TODO - Figure out how to serve styled 404 page for unhandled paths
 
 	// Run
 	if err := http.ListenAndServe(":"+appPort, r); err != nil {

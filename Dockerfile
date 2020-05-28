@@ -5,16 +5,9 @@ WORKDIR /app/cmd/go-fishbowl
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w" -a -o /main .
 
-# Client Build Stage
-FROM node:alpine AS node_builder
-COPY --from=builder /app/ui ./
-RUN npm install
-RUN npm run build
-
 # Final Build, this is what is actually deployed
 FROM alpine:latest
 COPY --from=builder /main ./
-COPY --from=node_builder /build ./web
 COPY ./assets ./assets
 RUN chmod +x ./main
 

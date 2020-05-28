@@ -18,25 +18,17 @@ For development, you might find it easier to run the backend and frontend separa
 
 Starting the go server:
 ```console
-$ docker-compose up db
-$ go run cmd/go-fishbowl/main.go
+$ make local-backend
 ```
-You can hit the api directly to start games and add cards `curl POST localhost:8080/v1/api/game/`
+You should keep this terminal open to see logs from the go service
 
-And in another terminal starting the frontend:
+In another terminal start the frontend with:
 ```console
-$ cd ui/ && npm start
+$ make local-frontend
 ```
-
-Note: If this is your first time running the app, you will have to run `npm install` before `npm start`.
+*Note: If this is your first time running the app, you will have to run `npm install` before `npm start`.*
 
 You can view the frontend by navigating to http://localhost:3000
-
-To deploy the web app locally should be as simple as:
-```console
-$ make local
-```
-Then navigate to http://localhost:8080 to check out a preview of the dockerized app as it will be deployed to production
 
 ### Testing
 Run the backend unit tests with:

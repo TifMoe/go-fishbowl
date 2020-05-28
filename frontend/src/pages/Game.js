@@ -16,7 +16,7 @@ class GamePage extends Component {
 
   constructor(props) {
       super(props);
-      this.gameId = this.props.match.params.gameId
+      this.gameId = this.props.match.params.gameId;
       this.socket = new Socket(this.gameId);
       this.state = {
           connected: false,
