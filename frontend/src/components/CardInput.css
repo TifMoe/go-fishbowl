@@ -36,7 +36,7 @@ button:hover {
     color: rgb(27, 27, 27);
 }
 
-button:disabled {
+.start-button:disabled {
     opacity: 40%;
     pointer-events: none;
 }

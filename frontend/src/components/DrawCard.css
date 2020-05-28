@@ -27,12 +27,7 @@ button {
     min-width: 80px;
 }
 
-.next-round {
-    width: 80%;
-    max-width: 350px;
-}
-
-button:disabled {
+.skip:disabled {
     opacity: 40%;
     pointer-events: none;
 }
@@ -58,4 +53,9 @@ button:disabled {
     max-width: 175px;
     padding: 14px 10px !important;
     margin: 5%;
+}
+
+.next-round:disabled {
+    opacity: 40%;
+    pointer-events: none;
 }
