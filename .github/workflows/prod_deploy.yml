@@ -54,8 +54,8 @@ jobs:
 
       - name: Publish to Cloudflare Workers
         uses: cloudflare/wrangler-action@1.1.0
-        working-directory: frontend
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           wranglerVersion: '1.6.0'
           environment: 'production'
+          workingDirectory: frontend
