@@ -24,9 +24,31 @@ class DrawCard extends Component {
     }
 
     componentDidMount() {
+        if (this.props.gameState.unused_cards === 0) {
+            this.setState({ showNextRound: true })
+        }
         // EVENT LISTENERS //
         this.props.socket.on('randomCard', this.randomCard);
+        this.props.socket.on('gameState', this.listenRoundChange);
       }
+
+    componentWillUnmount() {
+        this.props.socket.off('randomCard', this.randomCard);
+        this.props.socket.off('gameState', this.listenRoundChange);
+    }
+
+    // Event listener to show new Round Rules when turn changes
+    listenRoundChange = (data) => {
+        let response = JSON.parse(data)
+        const count = response.unused_cards;
+
+        if (count === 0) {
+            this.setState({showNextRound: true})
+        } else {
+            this.setState({showNextRound: false})
+        }
+
+    }
 
     // Event listener for new random card draw
     randomCard = (data) => {

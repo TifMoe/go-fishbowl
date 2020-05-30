@@ -22,9 +22,7 @@ class NewGame extends Component {
 
     componentDidMount() {
         let socket = this.socket = new Socket();
-    
         socket.on('connect', this.onConnect);
-        socket.on('disconnect', this.onDisconnect);
     
         /* EVENT LISTENERS */
         socket.on('newGame', this.newGame);
@@ -32,7 +30,10 @@ class NewGame extends Component {
 
     componentWillUnmount() {
         console.log("Signing off connection from new game!")
-        this.onDisconnect();
+        this.socket.off('connect', this.onConnect);
+        this.socket.off('newGame', this.newGame);
+        this.socket.close();
+        this.setState({connected: false});
     }
 
     onChange = (e) => {
@@ -57,7 +58,7 @@ class NewGame extends Component {
     // onDisconnect sets the state to false indicating the socket has been 
     //    disconnected.
     onDisconnect = () => {
-        this.setState({connected: false});
+        this.socket.close();
     }
   
 

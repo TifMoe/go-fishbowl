@@ -51,18 +51,6 @@
   }
 }
 
-.logo {
-  margin-top: 50px;
-  display: block;
-  max-height: 250px;
-}
-
-img {
-  height: 40vmin;
-  max-height: 230px;
-  pointer-events: none;
-}
-
 .title {
   margin-top: 50px;
 }
@@ -78,4 +66,16 @@ img {
   width: 100%;
   text-align: center;
   line-height: 30px;
+}
+
+.logo {
+  margin-top: 50px;
+  display: block;
+  max-height: 250px;
+}
+
+img {
+  height: 40vmin;
+  max-height: 230px;
+  pointer-events: none;
 }

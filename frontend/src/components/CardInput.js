@@ -16,6 +16,10 @@ class CardInput extends Component {
         this.props.socket.on('cardCount', this.cardCount);
     }
 
+    componentWillUnmount() {
+        this.props.socket.off('cardCount', this.cardCount);
+    }
+
     cardCount = (data) => {
         console.log("Here's the new card count: ", data)
         this.setState({count: data})
@@ -62,7 +66,7 @@ class CardInput extends Component {
             <div className="card-input">
                 <div className="explainer">
                     <p> Invite players to submit nouns below to fill up your bowl! </p>
-                    <p className="small-text"> (max 50 cards total) </p>
+                    <p className="small-text"> ( 3-5 cards per player ) </p>
                 </div>
                 <div className="card-form">
                     <form onSubmit={this.onSubmit}>

@@ -12,6 +12,8 @@ import (
 func NewRouter(p *Pool, c GameController) *WebSocketRouter {
 
 	wsr := NewWebSocketRouter(p)
+	wsr.Handle("disconnect", Disconnect)
+
 	wsr.Handle("newGame", c.NewGame)
 	wsr.Handle("getGame", c.GetGame)
 	wsr.Handle("updateGame", c.UpdateGame)
@@ -82,5 +84,11 @@ func (rt *WebSocketRouter) FindHandler(event Event) (Handler, bool) {
 func (rt *WebSocketRouter) Handle(event Event, handler Handler) {
 	// store in to router rules
 	rt.rules[event] = handler
+}
 
+// Disconnect is handler to disconnect client when "disconnect" event is emitted from client
+func Disconnect(cl *Client, data interface{}) {
+	log.Printf("Force disconnect client: %s\n", cl.id)
+	cl.pool.Unregister <- cl
+	cl.socket.Close()
 }
