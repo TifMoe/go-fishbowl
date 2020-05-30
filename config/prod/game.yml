@@ -41,7 +41,7 @@ metadata:
   annotations:
     service.beta.kubernetes.io/do-loadbalancer-protocol: http
     service.beta.kubernetes.io/do-loadbalancer-tls-ports: "443"
-    service.beta.kubernetes.io/do-loadbalancer-certificate-id: f990ec73-b7da-4ad7-b003-7c5c054d9638
+    service.beta.kubernetes.io/do-loadbalancer-certificate-id: 6cc9a679-cd58-4e18-a609-4b1778556334
 spec:
   type: LoadBalancer 
   ports:

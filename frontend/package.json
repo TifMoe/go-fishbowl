@@ -18,8 +18,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "deploy-staging": "REACT_APP_HOST=wss://staging.fishbowl.rocks npm run build && wrangler publish --env staging",
-    "deploy-prod": "REACT_APP_HOST=wss://fishbowl.rocks npm run build && wrangler publish --env prod",
+    "deploy-staging": "REACT_APP_WS_SCHEMA=wss REACT_APP_WS_HOST=stagingws.fishbowl.rocks npm run build && wrangler publish --env staging",
+    "deploy-prod": "REACT_APP_WS_SCHEMA=wss REACT_APP_WS_HOST=ws.fishbowl.rocks npm run build && wrangler publish --env prod",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
