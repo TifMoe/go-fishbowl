@@ -5,9 +5,11 @@ import {EventEmitter} from 'events';
 // Socket class to construct and provide methods for WebSocket connections.
 export default class Socket {
     constructor(id = "new-game") {
-        let HOST = process.env.REACT_APP_HOST;
-        let ws = this.ws = new WebSocket(`${HOST}/ws/${id}`);
-        console.log("New Websocket : ", HOST);
+        let HOST = process.env.REACT_APP_WS_HOST;
+        let SCHEMA = process.env.REACT_APP_WS_SCHEMA
+        let SERVER = `${SCHEMA}://${HOST}/ws/${id}`
+        let ws = this.ws = new WebSocket(SERVER);
+        console.log("New Websocket at: ", SERVER);
 
         this.ee = new EventEmitter();
         // attach message function as event listener for incoming websocket messages.

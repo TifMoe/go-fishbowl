@@ -49,7 +49,7 @@ jobs:
         working-directory: frontend
 
       - name: Build site
-        run: 'REACT_APP_HOST=wss://fishbowl.rocks npm run build'
+        run: 'REACT_APP_WS_SCHEMA=wss REACT_APP_WS_HOST=ws.fishbowl.rocks npm run build'
         working-directory: frontend
 
       - name: Publish to Cloudflare Workers

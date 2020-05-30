@@ -27,7 +27,7 @@ local-backend:
 	docker-compose up --build --force-recreate --abort-on-container-exit
 
 local-frontend:
-	cd ./frontend/ && REACT_APP_HOST=ws://localhost:8080 npm run start
+	cd ./frontend/ && REACT_APP_WS_SCHEMA=ws REACT_APP_WS_HOST=localhost:8080 npm run start
 
 lint:
 	# Requires golangci/tap/golangci-lint
