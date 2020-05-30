@@ -1,0 +1,27 @@
+.counter {
+    max-width: 250px;
+    height: 100px;
+    width: 60%;
+    margin: 0 auto;
+    margin-top: 3%;
+    background-color: #555F7D;
+    border-radius: 10px;
+}
+
+.count {
+    padding: 20px;
+    justify-content: center;
+    font-size: 25px;
+}
+
+.logo {
+    margin-top: 50px;
+    display: block;
+    max-height: 250px;
+  }
+  
+  img {
+    height: 40vmin;
+    max-height: 230px;
+    pointer-events: none;
+  }

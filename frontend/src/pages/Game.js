@@ -6,8 +6,9 @@ import GameTagHeader from '../components/GameTagHeader';
 import DrawCard from '../components/DrawCard';
 import GameStats from '../components/GameStats';
 import ScoreKeeper from '../components/ScoreKeeper';
+import CardCounter from '../components/CardCounter';
+import CelebrationFish from '../components/CelebrationFish';
 
-import fishbowl from '../assets/Fishbowl3.svg';
 import rules from './../gameRules.json';
 import './Game.css';
 
@@ -107,16 +108,20 @@ class GamePage extends Component {
       case 0:
         title = <h2>Enter nouns below to get started!</h2>;
         leftComponent = <CardInput gameId={this.gameId} socket={socket}/>;
+        rightComponent = <CardCounter socket={this.socket}/>;
         break
-      case 5: // Force end of game
+      // Force end of game
+      case 5:
         title = <h2>Congratulations!!</h2>;
         leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
+        rightComponent =  <CelebrationFish />;
         break
       // Transition to Game Stats page at the end of round 4
       case 4:
         if (this.state.unused_cards === 0) { // Natural end of game
           title = <h2>Congratulations!!</h2>;
           leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
+          rightComponent = <CelebrationFish />;
           break
         }
         // fallthrough
@@ -129,7 +134,10 @@ class GamePage extends Component {
                 gameState={this.state}
               />
             </div>;
-          rightComponent = <ScoreKeeper team1={this.state.team1} team2={this.state.team2}/>;
+          rightComponent = <div>
+              <ScoreKeeper team1={this.state.team1} team2={this.state.team2}/>
+              <CardCounter socket={socket}/>
+            </div>;
           break
     }
     return {
@@ -157,10 +165,6 @@ class GamePage extends Component {
 
               <div className="col-right">
                   {element.rightComponent}
-                  <div className="logo">
-                    <img src={fishbowl} className="bowl" alt="logo" />
-                  </div>
-                  {/* TODO: Add counter component here */}
               </div>
             </div>
 
