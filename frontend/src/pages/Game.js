@@ -193,7 +193,7 @@ class GamePage extends Component {
             <img src={Bubble} alt="bubble" style={{ display: 'block', width: '25%', marginLeft: '20%' }} />
           </ParallaxLayer>
 
-          <GameTagHeader gameId={this.gameId}/>
+          <GameTagHeader gameId={this.gameId} gameState={this.state}/>
 
         </Parallax>
       );

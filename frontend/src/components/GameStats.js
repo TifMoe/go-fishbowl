@@ -27,7 +27,7 @@ class GameStats extends Component {
 
         return (
             <div>
-                <Container style={{marginLeft: "10%", marginRight: "10%"}}>
+                <Container style={{marginLeft: window.innerWidth < 600 ? "0%" : "10%"}}>
                     <Row style={{marginBottom: "50px", marginTop: "50px"}}>
                         <Col>
                             <h2>{winner}</h2>
