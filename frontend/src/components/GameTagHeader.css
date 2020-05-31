@@ -12,6 +12,14 @@
     font-size: 15px;
     line-height: 30px;
   }
+
+  .support-link {
+    color: #292C34;
+  }
+
+  .support {
+    background: #F25577 !important;
+  }
   
   /* Page content */
   .content {
