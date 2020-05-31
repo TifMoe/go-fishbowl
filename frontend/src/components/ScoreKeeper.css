@@ -1,34 +1,15 @@
-.scorekeeper {
+.score-holder {
     margin-top: 5px;
     border-radius: 3px;
     height: 100px;
     min-width: 300px;
-    width: 800px;
+    width: 100%;
+    background-color: rgb(236, 235, 235);
   }
   
   .score {
-    margin-left: 5%;
-    margin-right: 5%;
+    margin: 0 auto;
     height: 90%;
     text-align: center;
-  }
-
-  .score > .col-left {
-    float: left;
-    width: 50%;
-  }
-  
-  .score > col-right {
-    margin-left: 50%;
-  }
-
-  @media screen and (max-width: 600px) {
-    .col-left {
-      width: 100%;
-      text-align: center;
-    }
-    .col-right {
-      margin-left: 0;
-      text-align: center;
-    }
+    padding-top: 20px;
   }

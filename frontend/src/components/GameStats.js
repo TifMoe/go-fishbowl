@@ -1,47 +1,69 @@
 import React, { Component } from 'react'
-import Confetti from 'react-confetti'
+import { Container, Row, Col } from 'react-bootstrap';
+
 import './GameStats.css';
 
 class GameStats extends Component {
 
+    // newGame is event emitter to tell backend to start new game in namespace
+    newGame = () => {
+        let data = JSON.stringify({
+            gameID: this.props.gameId,
+        });
+        console.log('Starting new game: ', this.props.gameId);
+        this.props.socket.emit('resetGame', data);
+    }
+
     render() {
-        const declareWinner = GetWinner(this.props.gameState.team1, this.props.gameState.team2)
+        const team1 = this.props.gameState.team1
+        const team2 = this.props.gameState.team2
+        let team1pts = getPoints(team1)
+        let team2pts = getPoints(team2)
+
+        let winner = (team1pts > team2pts ? team1.name : team2.name) + " Wins!!"
+        if (team1pts === team2pts) {
+            winner = `${team1.name} and ${team2.name} have tied!!`
+        }
+
         return (
             <div>
-                {declareWinner}
-                <Confetti
-                    colors={['#555F7D', '#F25577', '#2EDDCB', '#F4F7B4', '#F2F2F2', '#BF2C5B', '#F6FB96']}
-                />
+                <Container style={{marginLeft: "10%", marginRight: "10%"}}>
+                    <Row style={{marginBottom: "50px", marginTop: "50px"}}>
+                        <Col>
+                            <h2>{winner}</h2>
+                        </Col>
+                    </Row>
+                    <Row style={{ 
+                        backgroundColor: "white", 
+                        minHeight: "120px",
+                        borderRadius: "5px",
+                    }}>
+                        <Col sm={6} style={{color: "rgb(242, 85, 119)"}}>
+                            <div className="score">
+                                {team1.name}<br/>
+                                <b>{team1pts}</b> cards
+                            </div>
+                        </Col>
+                        <Col sm={6} style={{color: "rgb(46, 221, 204)"}}>
+                            <div className="score">
+                                {team2.name}<br/>
+                                <b>{team2pts}</b> cards
+                            </div>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <button onClick={this.newGame} className="next-round">
+                                Start New Game
+                            </button>
+                        </Col>
+                    </Row>
+             </Container>
             </div>
             )
     }
 }
 
-function GetWinner(team1, team2) {
-    let team1pts = getPoints(team1)
-    let team2pts = getPoints(team2)
-    let winner = (team1pts > team2pts ? team1.name : team2.name) + " Wins!!"
-
-    if (team1pts === team2pts) {
-        winner = `${team1.name} and ${team2.name} have tied!!`
-    }
-
-    return (
-        <div>
-        <h4>{winner}</h4>
-        <div className="scorekeeper row">
-            <div className="score col-left">
-                {team1.name}<br/>
-                <b>{team1pts}</b> cards
-            </div>
-            <div className="score col-right">
-                {team2.name}<br/>
-                <b>{team2pts}</b> cards
-            </div>
-        </div>
-        </div>
-    )
-}
 
 function getPoints(team) {
     return (
