@@ -15,7 +15,6 @@ function HomePage() {
 
       <ParallaxLayer offset={0} speed={1} style={{ backgroundColor: '#292C34' }}>
         <header className="Home-header">
-            <h2>Game nights can carry on from a distance with</h2>
             <TitleImage />
             <div className="intro">
               <p>Play fishbowl online over video calls with friends and family</p>
@@ -29,7 +28,7 @@ function HomePage() {
           <RoundRules/>
         </ParallaxLayer>
 
-        <ParallaxLayer offset={.1} speed={1} style={{ opacity: 0.4, width: "30%" }}>
+        <ParallaxLayer offset={.1} speed={1} style={{ opacity: 0.4, width: "30%"}}>
           <img src={Bubble} alt="bubble" style={{ display: 'block', width: '5%', marginLeft: '40%' }} />
           <img src={Bubble} alt="bubble" style={{ display: 'block', width: '10%', marginLeft: '55%' }} />
         </ParallaxLayer>

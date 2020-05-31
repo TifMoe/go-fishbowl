@@ -246,6 +246,8 @@ func (s *service) DeleteCards(gameID string) error {
 		return err
 	}
 	gameDTO.Cards = []repository.Card{}
+	gameDTO.Round = 0
+	gameDTO.Team1Turn = true
 
 	err = s.Repo.UpdateGame(gameDTO)
 	if err != nil {

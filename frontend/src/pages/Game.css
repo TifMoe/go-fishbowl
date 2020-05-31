@@ -17,42 +17,9 @@
   color: #2EDDCB;
 }
 
-.row {
-  width: 90%;
-  margin-top: 50px;
-}
-
-.col-left {
-  float: left;
-  width: 50%;
-}
-
-.col-right {
-  margin-left: 50%;
-}
-
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-@media screen and (max-width: 600px) {
-  .col-left {
-    width: 100%;
-    text-align: center;
-  }
-  .col-right {
-    margin-left: 0;
-    text-align: center;
-  }
-  .title {
-    margin-top: 80px !important;
-  }
-}
-
 .title {
   margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .round {
@@ -61,11 +28,13 @@
 
 .round-name {
   padding: 10px 16px;
+  margin: auto;
   color: #f1f1f1;
   display: block;
   width: 100%;
   text-align: center;
   line-height: 30px;
+  margin-bottom: 15px;
 }
 
 .logo {
@@ -78,4 +47,10 @@ img {
   height: 40vmin;
   max-height: 230px;
   pointer-events: none;
+}
+
+@media screen and (max-width: 600px) {
+  .title {
+    margin-top: 100px;
+  }
 }

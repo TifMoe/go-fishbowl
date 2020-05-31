@@ -1,4 +1,8 @@
 import React,  { Component } from 'react';
+import { Parallax, ParallaxLayer } from "react-spring/renderprops-addons.cjs";
+import { Container, Row, Col } from 'react-bootstrap';
+import Confetti from 'react-confetti'
+
 import Socket from '../Socket';
 
 import CardInput from '../components/CardInput';
@@ -8,6 +12,8 @@ import GameStats from '../components/GameStats';
 import ScoreKeeper from '../components/ScoreKeeper';
 import CardCounter from '../components/CardCounter';
 import CelebrationFish from '../components/CelebrationFish';
+import RoundRules from '../components/RoundRules';
+import Bubble from '../assets/Bubble.svg';
 
 import rules from './../gameRules.json';
 import './Game.css';
@@ -106,27 +112,27 @@ class GamePage extends Component {
     switch (this.state.round) {
       // Initial game setup
       case 0:
-        title = <h2>Enter nouns below to get started!</h2>;
+        title = <h2>Setup your Game!</h2>;
         leftComponent = <CardInput gameId={this.gameId} socket={socket}/>;
         rightComponent = <CardCounter socket={this.socket}/>;
         break
       // Force end of game
       case 5:
-        title = <h2>Congratulations!!</h2>;
-        leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
+        title = <WinnerCelebration />;
+        leftComponent = <GameStats gameId={this.gameId} gameState={this.state} socket={socket}/>;
         rightComponent =  <CelebrationFish />;
         break
       // Transition to Game Stats page at the end of round 4
       case 4:
         if (this.state.unused_cards === 0) { // Natural end of game
-          title = <h2>Congratulations!!</h2>;
-          leftComponent = <GameStats gameId={this.gameId} gameState={this.state}/>;
+          title = <WinnerCelebration />;
+          leftComponent = <GameStats gameId={this.gameId} gameState={this.state} socket={socket}/>;
           rightComponent = <CelebrationFish />;
           break
         }
         // fallthrough
       default:
-          title = <RoundTracker round={this.state.round} team1={this.state.team1} team2={this.state.team2}/>;
+          title = <RoundTracker gameState={this.state}/>;
           leftComponent = <div>
               <DrawCard
                 gameId={this.gameId}
@@ -135,8 +141,7 @@ class GamePage extends Component {
               />
             </div>;
           rightComponent = <div>
-              <ScoreKeeper team1={this.state.team1} team2={this.state.team2}/>
-              <CardCounter socket={socket}/>
+              <CardCounter socket={socket} cardCount={this.state.unused_cards}/>
             </div>;
           break
     }
@@ -149,35 +154,72 @@ class GamePage extends Component {
 
   render() {
       const element  = this.componentSwitch(this.socket)
+      const parallaxMarginLeft = window.innerWidth < 600 ? "80%" : "60%";
+      const parallaxWidth = window.innerWidth < 600 ? "20%" : "40%";
 
       return (
-        <div className="Game-page">
+
+        <Parallax pages={ window.innerWidth < 600 ? 3.5 : 2} style={{ backgroundColor: '#555F7D'}}>
+
+        <ParallaxLayer offset={0} speed={1} style={{ backgroundColor: '#292C34' }}>
+          <div className="Game-page">
+            <Container fluid style={{ blockSize: "auto"}}>
+              <div className="title"> {element.title} </div>
+              <Row>
+                <Col sm={6}> {element.leftComponent} </Col>
+                <Col sm={6}> {element.rightComponent} </Col>
+              </Row>
+            </Container>
+            </div>
+          </ParallaxLayer>
+
+          <ParallaxLayer offset={1} speed={.5} style={{ backgroundColor: '#555F7D'}}>
+            <RoundRules/>
+          </ParallaxLayer>
+
+          <ParallaxLayer offset={.1} speed={.4} style={{ opacity: 0.4, width: parallaxWidth, marginLeft: parallaxMarginLeft }}>
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '5%', marginLeft: '90%' }} />
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '10%', marginLeft: '75%' }} />
+          </ParallaxLayer>
+
+          <ParallaxLayer offset={.5} speed={.75} style={{ opacity: 0.3, width: parallaxWidth, marginLeft: parallaxMarginLeft }}>
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '12%', marginLeft: '5%' }} />
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '5%', marginLeft: '85%' }} />
+          </ParallaxLayer>
+
+          <ParallaxLayer offset={.6} speed={.3} style={{ opacity: 0.5, width: parallaxWidth, marginLeft: parallaxMarginLeft }}>
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '15%', marginLeft: '80%' }} />
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '30%', marginLeft: '15%' }} />
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '5%', marginLeft: '7%' }} />
+            <img src={Bubble} alt="bubble" style={{ display: 'block', width: '25%', marginLeft: '20%' }} />
+          </ParallaxLayer>
+
           <GameTagHeader gameId={this.gameId}/>
 
-          <div className="row">
-            <div className="title">{element.title}</div>
-          </div>
-
-            <div className="row">
-              <div className="col-left">
-                {element.leftComponent}
-              </div>
-
-              <div className="col-right">
-                  {element.rightComponent}
-              </div>
-            </div>
-
-          </div>
+        </Parallax>
       );
     }
   }
 
 
-function RoundTracker({ round }) {
+function RoundTracker({ gameState }) {
   return (
-    <div className="round-name">
-        <h2><b>{rules.rounds[round-1].name}</b></h2>
+    <Row>
+      <div className="round-name">
+          <h2><b>Round {gameState.round}</b></h2>
+          <ScoreKeeper gameState={gameState}/>
+      </div>
+    </Row>
+  )
+}
+
+function WinnerCelebration() {
+  return (
+    <div>
+        <h2>Congratulations!!</h2>
+        <Confetti
+            colors={['#555F7D', '#F25577', '#2EDDCB', '#F4F7B4', '#F2F2F2', '#BF2C5B', '#F6FB96']}
+        />
     </div>
   )
 }

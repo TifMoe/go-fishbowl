@@ -1,14 +1,15 @@
 import React,  { Component } from 'react';
 import fishbowl from '../assets/Fishbowl3.svg';
+import { Container, Row, Col } from 'react-bootstrap';
 
 import './CardCounter.css'
 
 class CardCounter extends Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
-            cardCount: 0,
+            cardCount: this.props.cardCount || 0,
         }
     }
 
@@ -45,17 +46,21 @@ class CardCounter extends Component {
     render() {
 
         return (
-            <div>
-                <div className="logo">
-                    <img src={fishbowl} alt="logo" />
-                </div>
-                <div className="counter">
-                    <div className="count">
-                        <b>{this.state.cardCount}</b><br/>
-                        cards
-                    </div>
-                </div>
-            </div>
+            <Container>
+                <Row>
+                    <Col><img src={fishbowl} alt="logo" /></Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <div className="counter">
+                            <div className="count">
+                                <b>{this.state.cardCount}</b><br/>
+                                cards
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+            </Container>
         )
     }
 }
