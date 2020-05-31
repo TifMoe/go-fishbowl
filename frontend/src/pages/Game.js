@@ -15,7 +15,6 @@ import CelebrationFish from '../components/CelebrationFish';
 import RoundRules from '../components/RoundRules';
 import Bubble from '../assets/Bubble.svg';
 
-import rules from './../gameRules.json';
 import './Game.css';
 
 
