@@ -6,70 +6,71 @@ import (
 
 // WordChoices is struct to hold selection of random words to choose from
 type WordChoices struct {
-	Nouns 	   []string 	`json:"nouns"`
-	Adjectives []string 	`json:"adjectives"`
+	Nouns      []string `json:"nouns"`
+	Adjectives []string `json:"adjectives"`
 }
 
 // CardInput contains value for new card from game
 type CardInput struct {
-	Value		string `json:"value" validate:"required,min=2,max=30"`
+	GameID string `json:"gameID" validate:"required"`
+	Value  string `json:"value" validate:"required,min=2,max=30"`
 }
 
 // IsEmpty will return true if Error struct does not contain something other than default
 func (c CardInput) IsEmpty() bool {
-    return c.Value == ""
+	return c.Value == ""
 }
 
 // GameInput contains value for updates to game data
 type GameInput struct {
-	Started			*bool 	`json:"started,omitempty"`
-	Round			*int	`json:"current_round,omitempty" validate:"max=5"`
-	Team1Turn		*bool	`json:"team_1_turn,omitempty"`
-
+	ID        string `json:"gameID" validate:"required"`
+	Started   *bool  `json:"started,omitempty"`
+	Round     *int   `json:"current_round,omitempty" validate:"max=5"`
+	Team1Turn *bool  `json:"team_1_turn,omitempty"`
 }
 
 // TeamInput contains value for team names
 type TeamInput struct {
-	Team1			*string	`json:"team_1,omitempty" validate:"required,min=2,max=30"`
-	Team2			*string	`json:"team_2,omitempty" validate:"required,min=2,max=30"`
+	Team1 *string `json:"team_1,omitempty" validate:"required,min=2,max=30"`
+	Team2 *string `json:"team_2,omitempty" validate:"required,min=2,max=30"`
 }
 
 // IsEmpty will return true if Error struct does not contain something other than default
 func (t TeamInput) IsEmpty() bool {
-    return &t.Team1 == nil || &t.Team2 == nil
+	return &t.Team1 == nil || &t.Team2 == nil
 }
 
 // Game is the internal struct for a game object
 type Game struct {
-	ID     string 		`json:"id,omitempty"`
-	Cards   []Card		`json:"cards,omitempty"`
-	Started		bool 	`json:"started,omitempty"`
-	Round		int		`json:"current_round,omitempty"`
-	Team1Turn	bool	`json:"team_1_turn,omitempty"`
-	UnusedCards	int		`json:"unused_cards,omitempty"`
-	Teams		Teams 	`json:"teams,omitempty"`
+	ID          string `json:"id,omitempty"`
+	Cards       []Card `json:"cards,omitempty"`
+	Started     bool   `json:"started,omitempty"`
+	Round       int    `json:"current_round,omitempty"`
+	Team1Turn   bool   `json:"team_1_turn,omitempty"`
+	UnusedCards int    `json:"unused_cards,omitempty"`
+	Teams       Teams  `json:"teams,omitempty"`
 }
 
 // Card is the internal struct for a card object
 type Card struct {
-	ID 		string	`json:"id,omitempty"`
-	Value   string  `json:"value,omitempty"`
-	Used 	bool    `json:"used,omitempty"`
+	ID    string `json:"id,omitempty"`
+	Value string `json:"value,omitempty"`
+	Used  bool   `json:"used,omitempty"`
 }
 
 // Teams is nested struct containing details for each of the two teams
 type Teams struct {
-	Team1 	Team `json:"team_1,omitempty"`
-	Team2 	Team `json:"team_2,omitempty"`
+	Team1 Team `json:"team_1,omitempty"`
+	Team2 Team `json:"team_2,omitempty"`
 }
 
 // Team contains data for a specific
 type Team struct {
-	Name		string		`json:"name,omitempty"`
-	Round1   	[]string	`json:"round_1,omitempty"`
-	Round2   	[]string	`json:"round_2,omitempty"`
-	Round3   	[]string	`json:"round_3,omitempty"`
-	Round4   	[]string	`json:"round_4,omitempty"`
+	Name   string   `json:"name,omitempty"`
+	Round1 []string `json:"round_1,omitempty"`
+	Round2 []string `json:"round_2,omitempty"`
+	Round3 []string `json:"round_3,omitempty"`
+	Round4 []string `json:"round_4,omitempty"`
 }
 
 // TODO: This is gross, optimize later
@@ -104,7 +105,6 @@ func gameDTOtoInternal(dto *repository.Game) *Game {
 
 	return game
 }
-
 
 func dtoToInternalTeam(dto repository.Team) Team {
 	t := Team{}

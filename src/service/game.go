@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"gopkg.in/go-playground/validator.v9"
 	"github.com/google/uuid"
+	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/tifmoe/go-fishbowl/src/repository"
 )
@@ -14,31 +14,31 @@ import (
 func NewGameService(r repository.Repository, rand RandomService, max int) GameService {
 	v := validator.New()
 	return &service{
-		Repo: r,
-		Validate: v,
+		Repo:         r,
+		Validate:     v,
 		MaximumCards: max,
-		Rand: rand,
+		Rand:         rand,
 	}
 }
 
-// GameService is interface with methods to interact with redis db	
+// GameService is interface with methods to interact with redis db
 type GameService interface {
-    NewGame(input *TeamInput) (string, error)
+	NewGame(input *TeamInput) (string, error)
 	GetGame(gameID string) (game *Game, err error)
 	UpdateGame(gameID string, input *GameInput) (*Game, error)
 
-	SaveCard(gameID string, card *CardInput) (string, error)
+	SaveCard(gameID string, card *CardInput) (int, error)
 	GetRandomCard(gameID string) (card *Card, err error)
 	MarkCardUsed(gameID, cardID string) (*Game, error)
-	ResetGame(gameID string) (*Game, error)
+	StartRound(gameID string) (*Game, error)
 	DeleteCards(gameID string) error
 }
 
 type service struct {
-	Repo 			repository.Repository
-	Validate 		*validator.Validate
-	MaximumCards 		int
-	Rand 			RandomService
+	Repo         repository.Repository
+	Validate     *validator.Validate
+	MaximumCards int
+	Rand         RandomService
 }
 
 // NewGame is service for generating new game namespace and instantiating in the database
@@ -78,7 +78,7 @@ func (s *service) UpdateGame(gameID string, input *GameInput) (*Game, error) {
 	}
 
 	existingGame, err := s.Repo.GetGame(gameID)
-	if existingGame == nil || err != nil{
+	if existingGame == nil || err != nil {
 		log.Printf("attempted to update a non-existent game %s: %v", gameID, err)
 		return game, fmt.Errorf("game %s does not exist", gameID)
 	}
@@ -102,39 +102,39 @@ func (s *service) UpdateGame(gameID string, input *GameInput) (*Game, error) {
 	return gameDTOtoInternal(existingGame), nil
 }
 
-// SaveCard is controller for saving a new card to the existing game
-func (s *service) SaveCard(gameID string, card *CardInput) (string, error) {
+// SaveCard is controller for saving a new card to the existing game and returns count of cards in game
+func (s *service) SaveCard(gameID string, card *CardInput) (int, error) {
 
 	// Terminate the request if the input is not valid
 	if err := s.Validate.Struct(card); err != nil {
 		log.Printf("error validating values from card %v: %v", card, err)
-		return "", fmt.Errorf("invalid card input")
+		return 0, fmt.Errorf("invalid card input")
 	}
 
 	existingGame, err := s.Repo.GetGame(gameID)
-	if existingGame == nil || err != nil{
+	if existingGame == nil || err != nil {
 		log.Printf("attempted to save card to non-existent game %s: %v", gameID, err)
-		return "", fmt.Errorf("game %s does not exist", gameID)
-	} 
+		return 0, fmt.Errorf("game %s does not exist", gameID)
+	}
 
 	if len(existingGame.Cards) >= s.MaximumCards {
 		log.Printf("maximum cards already added for game %s: %d", gameID, s.MaximumCards)
-		return "", fmt.Errorf("game already has maximum number of cards")
+		return 0, fmt.Errorf("game already has maximum number of cards")
 	}
 
 	newCard := &repository.Card{
-		ID: uuid.New().String(),
-		Value: card.Value, 
-		Used: false,
+		ID:    uuid.New().String(),
+		Value: card.Value,
+		Used:  false,
 	}
 	existingGame.Cards = existingGame.AddCard(*newCard)
 
 	err = s.Repo.UpdateGame(existingGame)
 	if err != nil {
 		log.Printf("error saving card %v: %v", card, err)
-		return "", fmt.Errorf("error updateing game with new card")
+		return 0, fmt.Errorf("error updateing game with new card")
 	}
-	return newCard.ID, nil
+	return len(existingGame.Cards), nil
 }
 
 // GetGame is service to fetch the requested game
@@ -175,10 +175,10 @@ func (s *service) GetRandomCard(gameID string) (card *Card, err error) {
 func (s *service) MarkCardUsed(gameID, cardID string) (*Game, error) {
 	var game *Game
 
-    gameDTO, err := s.Repo.GetGame(gameID)
-    if err != nil {
-        log.Printf("error fetching game %v: %v", gameID, err)
-        return game, err
+	gameDTO, err := s.Repo.GetGame(gameID)
+	if err != nil {
+		log.Printf("error fetching game %v: %v", gameID, err)
+		return game, err
 	}
 
 	var currentTeam *repository.Team
@@ -190,39 +190,39 @@ func (s *service) MarkCardUsed(gameID, cardID string) (*Game, error) {
 	currentRound := gameDTO.Round
 
 	found := false
-    for i := range gameDTO.Cards {
-        if gameDTO.Cards[i].ID == cardID {
+	for i := range gameDTO.Cards {
+		if gameDTO.Cards[i].ID == cardID {
 			gameDTO.Cards[i].Used = true
 			currentTeam.IncrementPoints(currentRound, &gameDTO.Cards[i])
 			found = true
-        }
-    }
+		}
+	}
 
 	if !found {
 		return game, fmt.Errorf("card %s not found in game %s", cardID, gameID)
 	}
 
-    err = s.Repo.UpdateGame(gameDTO)
-    if err != nil {
-        log.Printf("error updating card %v: %v", cardID, err)
-        return game, err
+	err = s.Repo.UpdateGame(gameDTO)
+	if err != nil {
+		log.Printf("error updating card %v: %v", cardID, err)
+		return game, err
 	}
 	game = gameDTOtoInternal(gameDTO)
-    return game, nil
+	return game, nil
 }
 
-// ResetGame is service to reset game to default values including moving all cards to un-used state before starting fresh round
-func (s *service) ResetGame(gameID string) (*Game, error) {
+// StartRound is service to reset game to default values including moving all cards to un-used state before starting fresh round
+func (s *service) StartRound(gameID string) (*Game, error) {
 	var game *Game
 
-    gameDTO, err := s.Repo.GetGame(gameID)
-    if err != nil {
-        log.Printf("error fetching game %v: %v", gameID, err)
-        return game, err
+	gameDTO, err := s.Repo.GetGame(gameID)
+	if err != nil {
+		log.Printf("error fetching game %v: %v", gameID, err)
+		return game, err
 	}
 
-    for i := range gameDTO.Cards {
-        gameDTO.Cards[i].Used = false
+	for i := range gameDTO.Cards {
+		gameDTO.Cards[i].Used = false
 	}
 
 	// Set default values for new round
@@ -230,27 +230,35 @@ func (s *service) ResetGame(gameID string) (*Game, error) {
 	gameDTO.Round = gameDTO.Round + 1
 	gameDTO.Team1Turn = !(gameDTO.Round%2 == 0) // Team 1 should start for every odd round
 
-    err = s.Repo.UpdateGame(gameDTO)
-    if err != nil {
-        log.Printf("error updating game %v: %v", gameID, err)
-        return game, err
+	err = s.Repo.UpdateGame(gameDTO)
+	if err != nil {
+		log.Printf("error updating game %v: %v", gameID, err)
+		return game, err
 	}
-    return gameDTOtoInternal(gameDTO), nil
+	return gameDTOtoInternal(gameDTO), nil
 }
 
 // DeleteCards is service to delete all cards for a given game
 func (s *service) DeleteCards(gameID string) error {
 	gameDTO, err := s.Repo.GetGame(gameID)
-    if err != nil {
-        log.Printf("error fetching game %v: %v", gameID, err)
-        return err
+	if err != nil {
+		log.Printf("error fetching game %v: %v", gameID, err)
+		return err
 	}
 	gameDTO.Cards = []repository.Card{}
-
-    err = s.Repo.UpdateGame(gameDTO)
-    if err != nil {
-        log.Printf("error updating game %v: %v", gameID, err)
-        return err
+	gameDTO.Round = 0
+	gameDTO.Team1Turn = true
+	gameDTO.Teams.Team1 = repository.Team{
+		Name: gameDTO.Teams.Team1.Name,
 	}
-    return nil
+	gameDTO.Teams.Team2 = repository.Team{
+		Name: gameDTO.Teams.Team2.Name,
+	}
+
+	err = s.Repo.UpdateGame(gameDTO)
+	if err != nil {
+		log.Printf("error updating game %v: %v", gameID, err)
+		return err
+	}
+	return nil
 }
