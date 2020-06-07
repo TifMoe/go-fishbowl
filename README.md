@@ -24,7 +24,7 @@ You should keep this terminal open to see logs from the go service
 
 In another terminal start the frontend with:
 ```console
-$ make local-frontend
+$ cd ./frontend/ && REACT_APP_WS_SCHEMA=ws REACT_APP_WS_HOST=localhost:8080 npm run start
 ```
 *Note: If this is your first time running the app, you will have to run `npm install` before `npm start`.*
 

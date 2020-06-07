@@ -1,5 +1,5 @@
 import React,  { Component } from 'react';
-import fishbowl from '../assets/Fishbowl3.svg';
+import FishbowlImg from '../components/Fishbowl';
 import { Container, Row, Col } from 'react-bootstrap';
 
 import './CardCounter.css'
@@ -48,7 +48,9 @@ class CardCounter extends Component {
         return (
             <Container>
                 <Row>
-                    <Col><img src={fishbowl} alt="logo" /></Col>
+                    <Col>
+                        <FishbowlImg cardCount={this.state.cardCount}/>
+                    </Col>
                 </Row>
                 <Row>
                     <Col>
