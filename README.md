@@ -1,7 +1,17 @@
-# go-fishbowl
-## check out the game here: [fishbowl.rocks](https://fishbowl.rocks/)
+# [fishbowl.rocks](https://fishbowl.rocks/)
 
-A Go + React web app to play FishBowl remotely
+A Go + React web app to play FishBowl remotely! Get your friends on a video call, share a link to the game, and have everyone throw a few nouns in the "bowl" to get started :) 
+
+## Technologies
+Frontend: Serverless [React](https://create-react-app.dev/) app deployed with [Cloudflare Workers](https://workers.cloudflare.com/)
+
+Backend: [Golang](https://golang.org/) + [Redis](https://redis.io/) backend deployed to [Digital Ocean](https://www.digitalocean.com/) with [Kubernetes](https://kubernetes.io/)
+
+CI/CD with [Github Actions](https://help.github.com/en/actions)
+
+![Test](https://github.com/TifMoe/go-fishbowl/workflows/Test/badge.svg)
+![Staging Deploy](https://github.com/TifMoe/go-fishbowl/workflows/Staging%20Deploy/badge.svg)
+![Deploy](https://github.com/TifMoe/go-fishbowl/workflows/Deploy/badge.svg)
 
 ## Getting started
 
