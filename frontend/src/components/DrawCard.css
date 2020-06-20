@@ -28,7 +28,7 @@ button {
 }
 
 .skip:disabled {
-    opacity: 40%;
+    opacity: 40% !important;
     pointer-events: none;
 }
 
@@ -56,6 +56,6 @@ button {
 }
 
 .next-round:disabled {
-    opacity: 40%;
+    opacity: 1% !important;
     pointer-events: none;
 }
