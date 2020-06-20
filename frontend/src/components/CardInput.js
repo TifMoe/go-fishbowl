@@ -9,6 +9,7 @@ class CardInput extends Component {
         this.state = {
             card: '',
             count: 0,
+            showConfirmModal: false,
         };
     }
 
@@ -40,6 +41,14 @@ class CardInput extends Component {
         }
     }
 
+    toggleModal() {
+        // Close or open modal
+        this.setState({
+            showConfirmModal: !this.state.showConfirmModal,
+        });
+    }
+
+
     // EVENT EMITTERS //
     // newCard is an event emitter that sends a new card value to the backend
     newCard = (e) => {
@@ -51,6 +60,7 @@ class CardInput extends Component {
         this.props.socket.emit('newCard', data);
         this.setState({ card: "" })
     }
+
 
     // startGame is an event emitter that tells the backend to start a game
     startGame = () => {
@@ -82,7 +92,13 @@ class CardInput extends Component {
                             <button type="submit">Drop it in!</button>
                     </form>
                 </div>
-                <StartGame startHandler={this.startGame} ready={this.state.count >= 3}/>
+                <StartGame startHandler={this.toggleModal.bind(this)} ready={this.state.count >= 3}/>
+                {this.state.showConfirmModal ?
+                    <ConfirmationModal
+                        startHandler={this.startGame}
+                        closeHandler={this.toggleModal.bind(this)}
+                    /> : null
+                }
             </div>
         );
     }
@@ -95,6 +111,21 @@ const StartGame = ({ startHandler, ready }) => (
             onClick={startHandler}
             disabled={!ready}
         >Start Game</button>
+    </div>
+)
+
+const ConfirmationModal = ({ startHandler, closeHandler }) => (
+    <div className='modal'>
+        <div className='message'>
+            <h1>Are you sure?</h1>
+            <p>Make sure all other players have finished submitting their cards before starting game</p>
+            <button
+                className="button yes-confirm"
+                onClick={startHandler}>Start!</button>
+            <button
+                className="close-button"
+                onClick={closeHandler}>Nope</button>
+        </div>
     </div>
 )
 

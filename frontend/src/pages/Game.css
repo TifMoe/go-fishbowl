@@ -54,3 +54,8 @@ img {
     margin-top: 100px;
   }
 }
+
+button:disabled {
+  opacity: 40% !important;
+  pointer-events: none;
+}

@@ -16,6 +16,7 @@ class DrawCard extends Component {
             showCard: false,
             showNextRound: false,
             showSkip: true,
+            showConfirmModal: false,
         }
         this.drawCard = this.drawCard.bind(this);
         this.markDone = this.markDone.bind(this);
@@ -92,6 +93,14 @@ class DrawCard extends Component {
         this.setState({showNextRound: false})
         this.startNextRound();
     }
+
+    toggleModal() {
+        // Close or open modal
+        this.setState({
+            showConfirmModal: !this.state.showConfirmModal,
+        });
+    }
+
 
     // EVENT EMMITTERS //
     // startNextRound is an event emitter that tells the backend to start a new round
@@ -197,7 +206,13 @@ class DrawCard extends Component {
                     nextHandler={this.endRound}/>
                 <EndGame
                     active={this.state.showNextRound}
-                    endHandler={this.endGame}/>
+                    endHandler={this.toggleModal.bind(this)}/>
+                {this.state.showConfirmModal ?
+                    <ConfirmationModal
+                        endHandler={this.endGame}
+                        closeHandler={this.toggleModal.bind(this)}
+                    /> : null
+                }
             </div>
         </div>
         );
@@ -252,6 +267,21 @@ const EndGame = ({ active, endHandler }) => (
             className="next-round"
             disabled={!active}
         >End Game</button>
+)
+
+const ConfirmationModal = ({ endHandler, closeHandler }) => (
+    <div className='modal'>
+        <div className='message'>
+            <h1>Are you sure?</h1>
+            <p>Do you want to end this game early and see your results?</p>
+            <button
+                className="button yes-confirm"
+                onClick={endHandler}>End Game</button>
+            <button
+                className="close-button"
+                onClick={closeHandler}>Nope</button>
+        </div>
+    </div>
 )
 
 export default DrawCard; 
