@@ -73,11 +73,11 @@ class GameStats extends Component {
 
 function getRows(data) {
     let lastRound = 4 // Assume all rounds finished until check below
-    let team1 = [data.team1.round_1_pts, data.team1.round_2_pts, data.team1.round_3_pts, data.team1.round_4_pts] 
-    let team2 = [data.team2.round_1_pts, data.team2.round_2_pts, data.team2.round_3_pts, data.team2.round_4_pts] 
-    
+    let team1 = [data.team1.round_1_pts, data.team1.round_2_pts, data.team1.round_3_pts, data.team1.round_4_pts]
+    let team2 = [data.team2.round_1_pts, data.team2.round_2_pts, data.team2.round_3_pts, data.team2.round_4_pts]
+
     for(var i = 0; i < team1.length; i++){
-        if (team1[i] + team2[i] == 0) {
+        if (team1[i] + team2[i] === 0) {
             lastRound = i
             break;
         }
@@ -100,13 +100,13 @@ function buildRow(round, team1pts, team2pts) {
     return (
         <tr>
             <td>Round {round + 1}</td>
-            <td style={{ 
+            <td style={{
                 backgroundColor: team1winner && !tie ? team1Color : "white"
             }}>{team1pts[round]}</td>
-            <td style={{ 
+            <td style={{
                 backgroundColor: team1winner || tie ? "white" : team2Color
             }}>{team2pts[round]}</td>
-        </tr>   
+        </tr>
     )
 }
 
