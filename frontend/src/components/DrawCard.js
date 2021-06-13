@@ -55,10 +55,10 @@ class DrawCard extends Component {
     randomCard = (data) => {
         let response = JSON.parse(data)
 
-        const cards = response.cards;
+        const card = response.card;
         const cardCount = response.unused_cards
 
-        if (cards && cards.length) {
+        if (card) {
             if (cardCount === 1) {
                 this.setState({ showSkip: false })
             } else {
@@ -67,8 +67,8 @@ class DrawCard extends Component {
 
             // Show new card
             this.setState(() => {
-                return { card: cards[0].value,
-                    id: cards[0].id,
+                return { card: card.value,
+                    id: card.id,
                     showCard: true,
                 }
             })
@@ -112,12 +112,13 @@ class DrawCard extends Component {
         this.props.socket.emit('startRound', data);
     }
 
-    // getRandomCard is an event emitter to request a random card from the backend
+    // getRandomCard is an event emitter to request another random card from the backend
     getRandomCard = () => {
         let data = JSON.stringify({
-            gameID: this.props.gameId
+            gameID: this.props.gameId,
+            cardID: this.state.id === "" ? null : this.state.id
         });
-        console.log('Sequesting new random card...');
+        console.log('Requesting new random card...');
         this.props.socket.emit('getRandomCard', data);
     }
 
@@ -135,25 +136,22 @@ class DrawCard extends Component {
         this.drawCard();
     }
 
-    // nextTurn is event emitter to tell backend about an update to the game
+    // startNextTurn is event emitter to tell backend to switch teams
     nextTurn = () => {
         let data = JSON.stringify({
             gameID: this.props.gameId,
-            team_1_turn: !this.props.gameState.team_1_turn,
-            current_round: this.props.gameState.round
         });
         console.log('Updating for next turn: Game ', this.props.gameId);
-        this.props.socket.emit('updateGame', data);
+        this.props.socket.emit('startNextTurn', data);
     }
 
     // endGame is event emitter to tell backend to force end the game
     endGame = () => {
         let data = JSON.stringify({
-            gameID: this.props.gameId,
-            current_round: 5
+            gameID: this.props.gameId
         });
         console.log('Force ending game ', this.props.gameId);
-        this.props.socket.emit('updateGame', data);
+        this.props.socket.emit('endGame', data);
     }
 
     render() {

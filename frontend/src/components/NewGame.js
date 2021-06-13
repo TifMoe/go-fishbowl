@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Socket from '../Socket';
+import MyError from './MyError';
 
 import './NewGame.css';
 
@@ -60,7 +61,6 @@ class NewGame extends Component {
     onDisconnect = () => {
         this.socket.close();
     }
-  
 
     newGame = (data) =>{
         this.setState(() => {
@@ -113,6 +113,8 @@ class NewGame extends Component {
                         minLength="2"
                         onChange={this.onChange}
                     />
+                    <MyError />
+
                     <button type="submit" disabled={!this.state.ok}> Start a new game! </button>
                 </form>
             </div>

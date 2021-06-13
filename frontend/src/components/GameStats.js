@@ -9,8 +9,10 @@ class GameStats extends Component {
     newGame = () => {
         let data = JSON.stringify({
             gameID: this.props.gameId,
+            team_1: this.props.gameState.team1.name,
+            team_2: this.props.gameState.team2.name,
         });
-        this.props.socket.emit('resetGame', data);
+        this.props.socket.emit('newGame', data);
     }
 
     render() {

@@ -109,7 +109,8 @@ const StartGame = ({ startHandler, ready }) => (
         <button
             className="start-button"
             onClick={startHandler}
-            disabled={!ready}
+            // TODO fix this validation after refactoring state management
+            // disabled={!ready}
         >Start Game</button>
     </div>
 )
